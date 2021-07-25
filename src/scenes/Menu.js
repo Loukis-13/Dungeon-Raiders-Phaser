@@ -1,4 +1,4 @@
-import Botao from "../plugins/Botao.js";
+import Botao from "../objects/Botao.js";
 
 export default class Menu extends Phaser.Scene {
     constructor() {

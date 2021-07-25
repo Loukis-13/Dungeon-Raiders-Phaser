@@ -1,4 +1,4 @@
-import Botao from "../plugins/Botao.js";
+import Botao from "../objects/Botao.js";
 
 export default class Regras extends Phaser.Scene {
     constructor() {
@@ -17,7 +17,7 @@ export default class Regras extends Phaser.Scene {
 
         let pg = 1;
 
-        this.cameras.main.fadeIn(100, 0, 0, 0)
+        // this.cameras.main.fadeIn(100, 0, 0, 0)
 
         let image = this.add.image(screenWidth/2, screenHeight/2, 'p1');
         image.displayWidth = screenWidth;

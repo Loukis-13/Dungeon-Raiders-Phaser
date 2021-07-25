@@ -1,13 +1,17 @@
 export default class Botao extends Phaser.GameObjects.Container {
-    constructor(tela, x, y, txt, style, cena, dw=0, dh=0) {
+    constructor(tela, x, y, txt, style, cena="", dw=0, dh=0, func=undefined) {
         super(tela);
         
-        let botao = tela.add.image(x, y, 'botao')
-            .setInteractive({ useHandCursor: true })
-            .on('pointerdown', ()=>{
+        let botao = tela.add.image(x, y, 'botao').setInteractive({useHandCursor: true})
+
+        if (func)
+            botao.on('pointerdown', ()=>func(tela));
+        else
+            botao.on('pointerdown', ()=>{
                 tela.cameras.main.fadeOut(100, 0, 0, 0);
                 tela.scene.start(cena);
             });
+
         if (dw) botao.displayWidth  = dw
         if (dh) botao.displayHeight = dh
             
