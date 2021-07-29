@@ -6,8 +6,7 @@ export default class Menu extends Phaser.Scene {
     }
 
     preload() {
-        this.load.image('menu', 'img/menu.png');
-        this.load.image('botao', 'img/botao.png');
+        
     }
     
     create() {

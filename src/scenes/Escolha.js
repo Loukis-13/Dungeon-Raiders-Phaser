@@ -6,19 +6,7 @@ export default class Escolha extends Phaser.Scene {
     }
 
     preload() {
-        this.load.image('fundo', 'img/plano_de_fundo.jpg');
-        this.load.image('faixa', 'img/faixa.png');
-
-        this.load.image('ladra', 'img/personagens/ladra.png');
-        this.load.image('guerreiro', 'img/personagens/guerreiro.png');
-        this.load.image('cavaleiro', 'img/personagens/cavaleiro.png');
-        this.load.image('mago', 'img/personagens/mago.png');
-        this.load.image('exploradora', 'img/personagens/exploradora.png');
-        this.load.image('aleatorio', 'img/personagens/aleatorio.png');
-        this.load.image('selecionado', 'img/personagens/selecionado.png');
-
-        this.load.image('numero', 'img/personagens/numero.png');
-        this.load.image('numeroselec', 'img/personagens/numeroselec.png');
+        
     }
 
     create() {

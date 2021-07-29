@@ -6,8 +6,7 @@ export default class Regras extends Phaser.Scene {
     }
 
     preload() {
-        for (let i=1; i<=6; i++)
-            this.load.image(`p${i}`, `img/regras/p${i}.jpg`);
+        
     }
 
     create() {
