@@ -14,7 +14,7 @@ class Personagem {
 			carta = this.cartas[Math.floor(Math.random() * carta.length)];
 			if ((carta == 'chave' && tipo != 'Tesouro') || (carta == 'espada' && tipo != 'Monstro'))
 				continue;
-			if (carta == 'tocha' || carta == 'boladecristal')
+			if (carta == 'tocha' || carta == 'bola_de_cristal')
 				continue;
 			break;
         }
@@ -28,7 +28,7 @@ class Personagem {
 			carta = this.cartas[Math.floor(Math.random() * carta.length)];
 			if (3 in hab && carta == 'espada')
 				continue;
-			if (7 in hab && carta == 'boladecristal')
+			if (7 in hab && carta == 'bola_de_cristal')
 				continue;
 			break;
         }
@@ -40,7 +40,7 @@ class Personagem {
 			carta = this.cartas[Math.floor(Math.random() * carta.length)];
 			if (3 in hab && carta == 'espada')
 				continue;
-			if (7 in hab && carta == 'boladecristal')
+			if (7 in hab && carta == 'bola_de_cristal')
 				continue;
 			break;
         }
@@ -56,13 +56,13 @@ class Personagem {
     }
 }
 
-const DICT_CARTAS = {'1': 1, '2': 2, '3': 3, '4': 4, '5': 5, 'espada': 5, 'chave': 5, 'boladecristal': 0, 'tocha': 0}
+const DICT_CARTAS = {'1': 1, '2': 2, '3': 3, '4': 4, '5': 5, 'espada': 5, 'chave': 5, 'bola_de_cristal': 0, 'tocha': 0}
 
 
 class Aboboda {
 	constructor(itens, imagem) {
 		this.itens = itens
-		this.itens = itens==1 ? ['tocha', 'boladecristal', 'chave', 'espada', {'vida': 1}] : [{'moedas': 1}, {'moedas': 2}, {'vida': 1}, {'moedas': 3}, {'vida': 2}]
+		this.itens = itens==1 ? ['tocha', 'bola_de_cristal', 'chave', 'espada', {'vida': 1}] : [{'moedas': 1}, {'moedas': 2}, {'vida': 1}, {'moedas': 3}, {'vida': 2}]
 		this.imagem = imagem
 		this.tipo = 'Abóboda'
 		this.escuro = false
@@ -86,8 +86,8 @@ class Aboboda {
 				}
 				case '2': {
 					if (this.itens == 1) {
-						jog.cartas.push('boladecristal')
-						val[i] = ['boladecristal', [1, 1, 1, 1]]
+						jog.cartas.push('bola_de_cristal')
+						val[i] = ['bola_de_cristal', [1, 1, 1, 1]]
 					}
 					else {
 						jog.moedas += 2
@@ -345,7 +345,7 @@ class Chefe {
 	}
 
 // 	def resolver(self):
-// 		CHEFE_DICT_CARTAS = {'0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, 'espada': 5, 'chave': 0, 'boladecristal': 0, 'tocha': 0}
+// 		CHEFE_DICT_CARTAS = {'0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, 'espada': 5, 'chave': 0, 'bola_de_cristal': 0, 'tocha': 0}
 // 		danos = [['', [0, 0, 0, 0]]]*5
 // 		morto = false
 
@@ -355,7 +355,7 @@ class Chefe {
 // 			else if self.nome == 'Vampiro':
 // 				CHEFE_DICT_CARTAS['tocha'] = 3
 // 		if 6 in self.hab:
-// 			CHEFE_DICT_CARTAS['boladecristal'] = 5
+// 			CHEFE_DICT_CARTAS['bola_de_cristal'] = 5
 
 // 		val_cartas = sorted([sum(CHEFE_DICT_CARTAS[i] for i in j.ultima) for j in jogs])
 // 		val_cartas = jogs.map(j=>CHEFE_DICT_CARTAS[j.ultima]).sorted((a,b)=>a-b)
@@ -495,7 +495,7 @@ export function gerar_masmorra() {
 
 export function gerar_jogadores(quant_jogs, escolha) {
 	let guerreiro =   new Personagem('Guerreiro',   10, 2, 'gue', ['1', '2', '3', '4', '5'])
-	let mago =        new Personagem('Mago',        9,  1, 'mag', ['1', '2', '3', '4', '5', 'boladecristal', 'boladecristal'])
+	let mago =        new Personagem('Mago',        9,  1, 'mag', ['1', '2', '3', '4', '5', 'bola_de_cristal', 'bola_de_cristal'])
 	let cavaleiro =   new Personagem('Cavaleiro',   9,  1, 'cav', ['1', '2', '3', '4', '5', 'espada'])
 	let exploradora = new Personagem('Exploradora', 8,  3, 'exp', ['1', '2', '3', '4', '5', 'tocha'])
 	let ladra =       new Personagem('Ladra',       8,  2, 'lad', ['1', '2', '3', '4', '5', 'chave'])

@@ -66,13 +66,12 @@ export default class Preloader extends Phaser.Scene {
         this.load.image('tocha', 'img/cartas_de_ataque/tocha.png');
         this.load.image('espada', 'img/cartas_de_ataque/espada.png');
         this.load.image('bola_de_cristal', 'img/cartas_de_ataque/bola_de_cristal.png');
-        this.load.image('selecionado_c', 'img/cartas_de_ataque/selecionado.png');
 
-        let salas = ['aboboda0.png', 'tesouro2.png', 'dragao.png', 'cubo.png', 'vazio.jpg', 'tesouro5.png', 'aboboda1.png', 'armadilha3.png', 'goblin.png', 'cobra.png', 'zumbi.png', 'tesouro6.png', 'tesouro1.png', 'tesouro3.png', 'armadilha1.png', 'esqueleto.png', 'armadilha2.png', 'troll.png', 'tesouro4.png', 'tesouro0.png', 'armadilha0.png']
-        for (let i of salas) this.load.image(`${i.split('.')[0]}`, `img/salas/${i}`);
+        let salas = ['aboboda0.png', 'tesouro2.png', 'dragao.png', 'cubo.png', 'vazio.png', 'tesouro5.png', 'aboboda1.png', 'armadilha3.png', 'goblin.png', 'cobra.png', 'zumbi.png', 'tesouro6.png', 'tesouro1.png', 'tesouro3.png', 'armadilha1.png', 'esqueleto.png', 'armadilha2.png', 'troll.png', 'tesouro4.png', 'tesouro0.png', 'armadilha0.png']
+        for (let i of salas) this.load.image(i.split('.')[0], 'img/salas/'+i);
 
         let chefes = ['vampiro.jpg', 'minotauro.jpg', 'megadragao.jpg', 'chefe.jpg', 'coletor_de_impostos.jpg', 'hidra1.jpg', 'hidra.jpg', 'mumia.jpg', 'golem.jpg', 'esfinge.jpg', 'necromante.jpg', 'matilha_de_lobos.jpg', 'medusa.jpg']
-        for (let i of chefes) this.load.image(`${i.split('.')[0]}`, `img/chefes/${i}`);
+        for (let i of chefes) this.load.image(i.split('.')[0], 'img/chefes/'+i);
         
         this.load.plugin('rexgrayscalepipelineplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexgrayscalepipelineplugin.min.js', true);
     }
