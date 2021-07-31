@@ -1,8 +1,11 @@
-import Menu from './scenes/Menu.js'
-import Escolha from './scenes/Escolha.js';
-import Regras from './scenes/Regras.js';
-import Jogo from './scenes/Jogo.js';
 import Preloader from './scenes/Preloader.js';
+import Menu from './scenes/Menu.js';
+import Regras from './scenes/Regras.js';
+import Escolha from './scenes/Escolha.js';
+import Porta from './scenes/Porta.js';
+import Jogo from './scenes/Jogo.js';
+import Morte from './scenes/Morte.js';
+import FimDeJogo from './scenes/FimDeJogo.js';
 
 var config = {
     type: Phaser.AUTO,
@@ -12,7 +15,7 @@ var config = {
         // mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH
     },
-    scene: [Preloader, Menu, Escolha, Regras, Jogo]
+    scene: [Preloader, Menu, Regras, Escolha, Porta, Jogo, Morte, FimDeJogo]
 };
 
 var game = new Phaser.Game(config);

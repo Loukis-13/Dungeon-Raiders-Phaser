@@ -91,7 +91,7 @@ export default class Escolha extends Phaser.Scene {
 
     aviso (tela) {
         if (tela.escolha && tela.qjog)
-            tela.scene.start('Jogo', {escolha: tela.escolha, qjog: tela.qjog});
+            tela.scene.start('Porta', {escolha: tela.escolha, qjog: tela.qjog});
         else {
             if (!tela.escolha)
                 tela.tweens.add({targets: tela.no_p, alpha: 1, duration:1000, yoyo:true, hold: 1000})

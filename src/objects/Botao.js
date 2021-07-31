@@ -7,7 +7,7 @@ export default class Botao extends Phaser.GameObjects.Container {
         if (func)
             botao.on('pointerdown', ()=>func(tela));
         else
-            botao.on('pointerdown', ()=>{
+            botao.once('pointerdown', ()=>{
                 tela.cameras.main.fadeOut(100, 0, 0, 0);
                 tela.scene.start(cena);
             });

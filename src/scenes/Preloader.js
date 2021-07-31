@@ -34,11 +34,11 @@ export default class Preloader extends Phaser.Scene {
     preload() {
         this.load.image('menu', 'img/menu.png');
         this.load.image('botao', 'img/botao.png');
-
-        for (let i=1; i<=6; i++) this.load.image(`p${i}`, `img/regras/p${i}.jpg`);
-
         this.load.image('fundo', 'img/plano_de_fundo.jpg');
         this.load.image('faixa', 'img/faixa.png');
+        this.load.image('porta', 'img/porta.jpg');
+
+        for (let i=1; i<=6; i++) this.load.image(`p${i}`, `img/regras/p${i}.jpg`);
 
         this.load.image('ladra', 'img/personagens/ladra.png');
         this.load.image('guerreiro', 'img/personagens/guerreiro.png');
