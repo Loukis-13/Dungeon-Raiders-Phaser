@@ -347,6 +347,33 @@ class Chefe {
 		this.hab = hab
 	}
 
+	resolver(jogs) {
+		let val_cartas = jogs.map(j=>DICT_CARTAS[j.ultima]).sort((a,b)=>a-b)
+		let danos = Array(5).fill(['', '#f00'])
+		let morto = false
+
+		// dois jogadores
+		if (jogs.length == 2) {
+			if (val_cartas[0] == val_cartas[1])
+				return ('? ? ?', danos, morto)
+		}
+
+		if (val_cartas.reduce((x,i)=>x+i, 0) < this.vida[jogs.length]) {
+			for (let [i, jog] of jogs.entries()) {
+				if (DICT_CARTAS[jog.ultima] == val_cartas[0]) {
+					jog.vida += this.dano
+					danos[i] = [this.dano, '#f00']
+					if (jog.vida < 0)
+						jog.vida = 0
+				}
+			}
+		}
+		else
+			morto = true
+
+		return [val_cartas.reduce((a,b)=>a+b,0), danos, morto]
+	}
+
 // 	def resolver(this):
 // 		CHEFE_DICT_CARTAS = {'0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, 'espada': 5, 'chave': 0, 'bola_de_cristal': 0, 'tocha': 0}
 // 		danos = Array(5).fill(['', [0, 0, 0, 0]])

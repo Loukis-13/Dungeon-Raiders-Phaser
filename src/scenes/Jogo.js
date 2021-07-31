@@ -13,6 +13,8 @@ export default class Jogo extends Phaser.Scene {
         this.sala = data.sala;
 
         this.escolha = "";
+
+        this.bolaDeCristal = Boolean(data.bolaDeCristal)?data.bolaDeCristal:0
     }
 
     create() {
@@ -31,7 +33,7 @@ export default class Jogo extends Phaser.Scene {
         this.conteudoSala = this.add.image(this.sw/2, this.sh/2.2, this.masmorras[this.masmorra][this.sala].imagem)
         this.conteudoSala.setScale(this.sh/this.conteudoSala.height/2)
 
-        this.resultadoTexto = this.add.text(this.sw/2, this.sh/5, '', aviso_style).setOrigin(.5).setAlpha(0);
+        this.resultadoTexto = this.add.text(this.sw/2, 100, '', aviso_style).setOrigin(.5).setAlpha(0);
 
         this.infoJogs()
 
@@ -45,11 +47,20 @@ export default class Jogo extends Phaser.Scene {
             .setInteractive({useHandCursor: true})
             .on('pointerdown', ()=>this.jogar());
         this.add.text(this.botao.x, this.botao.y, 'Jogar', this.style).setOrigin(.5);
+
+        if (this.jogs[0].ultima == "bola_de_cristal") {
+            for (let [i, j] of this.jogs.entries()) {
+                this.cartaJogada[i].setTexture(j.ultima)
+            }
+
+            this.tweens.add({targets: this.cartaJogada, alpha: 1, duration:1000})
+        }
     }
 
     infoJogs() {
         this.cartaJogada = []
         this.resultadoPersona = []
+        this.resultadoAboboda = []
 
         let h = 120
         for (let jog of this.jogs) {
@@ -57,8 +68,9 @@ export default class Jogo extends Phaser.Scene {
             this.add.text(per.x+16, per.y, jog.vida, {font: "28px Pirata_One"}).setOrigin(.5)
             this.add.text(per.x+64, per.y, jog.moedas, {font: "28px Pirata_One"}).setOrigin(.5)
 
+            this.cartaJogada.push(this.add.image(per.x+130, per.y, '0').setScale(.2).setAlpha(0))
             this.resultadoPersona.push(this.add.text(per.x+180, per.y, '', this.style).setOrigin(.5).setAlpha(0))
-            this.cartaJogada.push(this.add.image(per.x+130, per.y, '1').setScale(.2).setAlpha(0))
+            this.resultadoAboboda.push(this.add.image(per.x+180, per.y, '0').setScale(.2).setAlpha(0))
 
             h += 95
         }
@@ -112,7 +124,57 @@ export default class Jogo extends Phaser.Scene {
         else if (this.escolha == "tocha") {
             this.masmorras[this.masmorra].forEach(m=>m.escuro=false)
             this.jogs[0].cartas.splice(this.jogs[0].cartas.indexOf('tocha'), 1)
+            this.bolaDeCristal = 1;
             this.scene.start('Jogo', {jogs: this.jogs, masmorras: this.masmorras, sala: this.sala, masmorra: this.masmorra});
+        } 
+        else if (this.escolha == "bola_de_cristal" || Boolean(this.bolaDeCristal)) {
+            this.botao.removeAllListeners()
+
+            this.jogs[0].ultima = this.escolha
+            this.jogs[0].cartas.splice(this.jogs[0].cartas.indexOf(this.escolha), 1)
+
+            if (this.bolaDeCristal == 0) {
+                this.jogs.slice(1).forEach(jog=>jog.jogar())
+
+                this.scene.start('Jogo', {jogs: this.jogs, masmorras: this.masmorras, sala: this.sala, masmorra: this.masmorra, bolaDeCristal: 1});
+            }
+            else {
+                this.bolaDeCristal = 0
+
+                this.cartaJogada[0].setTexture(this.jogs[0].ultima)
+
+                let res = this.masmorras[this.masmorra][this.sala].resolver(this.jogs)
+
+                this.resultadoTexto.setText(res[0])
+                this.tweens.add({targets: this.resultadoTexto, alpha: 1, duration:1000, yoyo:true, hold: 3000})
+
+                this.tweens.add({targets: this.cartaJogada, alpha: 0, duration:1000, delay: 4000})
+
+                if (res[2]) {
+                    this.tweens.addCounter({from: 0, to: 100, duration:1000, yoyo:true, hold: 2000, onUpdate: (tween)=>{
+                            let cor = Phaser.Display.Color.Interpolate.RGBWithRGB(255,255,255, 255,0,0, 100, tween.getValue())
+                            this.conteudoSala.setTint(Phaser.Display.Color.GetColor(cor.r, cor.g, cor.b))
+                        }
+                    })
+                }
+                
+                for (let [i, j] of res[1].entries()) {
+                    if (String(j[0]).match(/[\+\-\/]\d+/))
+                        this.resultadoPersona[i].setText(j[0]).setColor(j[1])
+                    else
+                        this.resultadoAboboda[i].setTexture(j[0])
+                }
+                this.tweens.add({targets: this.resultadoAboboda, alpha: 1, duration:1000, yoyo:true, hold: 3000});
+                this.tweens.add({targets: this.resultadoPersona, alpha: 1, duration:1000, yoyo:true, hold: 3000})
+                    .on('complete', function(tween, targets){
+                        this.sala++;
+    
+                        if (this.sala == 5) 
+                            this.scene.start('Porta', {jogs: this.jogs, masmorras: this.masmorras, sala: this.sala, masmorra: this.masmorra});
+                        else
+                            this.scene.start('Jogo', {jogs: this.jogs, masmorras: this.masmorras, sala: this.sala, masmorra: this.masmorra});
+                    }, this);
+            }
         }
         else {
             this.botao.removeAllListeners()
@@ -146,16 +208,32 @@ export default class Jogo extends Phaser.Scene {
             this.tweens.add({targets: this.cartaJogada, alpha: 1, duration:1000, yoyo:true, hold: 3000})
             
             for (let [i, j] of res[1].entries()) {
-                this.resultadoPersona[i].setText(j[0]).setColor(j[1])
+                if (String(j[0]).match(/[\+\-\/]\d+/))
+                    this.resultadoPersona[i].setText(j[0]).setColor(j[1])
+                else
+                    this.resultadoAboboda[i].setTexture(j[0])
             }
+            this.tweens.add({targets: this.resultadoAboboda, alpha: 1, duration:1000, yoyo:true, hold: 3000});
             this.tweens.add({targets: this.resultadoPersona, alpha: 1, duration:1000, yoyo:true, hold: 3000})
                 .on('complete', function(tween, targets){
-                    this.sala++;
+                    if (this.jogs[0].vida == 0) {
+                        return this.scene.start('Morte');
+                    }
 
-                    if (this.sala == 5) 
-                        this.scene.start('Porta', {jogs: this.jogs, masmorras: this.masmorras, sala: this.sala, masmorra: this.masmorra});
-                    else
+                    this.jogs = this.jogs.filter(jog=>jog.vida>0)
+
+                    this.sala++;
+                    if (this.sala == 5) {this.masmorra++;}
+
+                    if (this.masmorra == 5 || this.jogs.length == 1) {
+                        this.scene.start('FimDeJogo', {jogs: this.jogs});
+                    }
+                    else if (this.sala == 5) {
+                        this.scene.start('Porta', {jogs: this.jogs, masmorras: this.masmorras, masmorra: this.masmorra});
+                    }
+                    else {
                         this.scene.start('Jogo', {jogs: this.jogs, masmorras: this.masmorras, sala: this.sala, masmorra: this.masmorra});
+                    }
                 }, this);
         }
     }

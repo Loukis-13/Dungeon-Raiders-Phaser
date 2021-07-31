@@ -57,6 +57,7 @@ export default class Preloader extends Phaser.Scene {
         this.load.image('mag', 'img/personagens/mag.png');
         this.load.image('exp', 'img/personagens/exp.png');
 
+        this.load.image('0', 'img/cartas_de_ataque/0.png');
         this.load.image('1', 'img/cartas_de_ataque/1.png');
         this.load.image('2', 'img/cartas_de_ataque/2.png');
         this.load.image('3', 'img/cartas_de_ataque/3.png');

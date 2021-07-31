@@ -17,29 +17,27 @@ export default class Porta extends Phaser.Scene {
             this.jogs = data.jogs;
             this.masmorras = data.masmorras;
 
-            this.masmorra = data.masmorra+1;
             this.sala = 0;
 
             this.jogs.forEach(jog=>jog.redefinir());
         }
         this.time.delayedCall(4000, ()=>{
             this.cameras.main.fadeOut(1000, 0, 0, 0).on('camerafadeoutcomplete', ()=>{
-                if (this.masmorra < 5)
-                    this.scene.start('Jogo', {jogs: this.jogs, masmorras: this.masmorras, sala: this.sala, masmorra: this.masmorra});
-                else
-                    this.scene.start('FimDeJogo', {jogs: this.jogs, masmorras: this.masmorras, sala: this.sala, masmorra: this.masmorra});
+                this.scene.start('Jogo', {jogs: this.jogs, masmorras: this.masmorras, sala: this.sala, masmorra: this.masmorra});
             });
         });
     }
 
     create() {
-        this.sw = this.cameras.main.width;
-        this.sh = this.cameras.main.height;
-
-        let image = this.add.image(this.sw/2, this.sh/2, 'porta');
-        image.displayWidth = this.sw;
-        image.displayHeight = this.sh;
-
         this.cameras.main.fadeIn(1000, 0, 0, 0)
+
+        let sw = this.cameras.main.width;
+        let sh = this.cameras.main.height;
+
+        let image = this.add.image(sw/2, sh/2, 'porta');
+        image.displayWidth = sw;
+        image.displayHeight = sh;
+
+        this.add.text(sw/2, 50, 'Masmorra '+(this.masmorra+1), {font: "40px Pirata_One"}).setOrigin(.5)
     }
 }
