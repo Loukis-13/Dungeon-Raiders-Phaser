@@ -7,6 +7,11 @@ export default class FimDeJogo extends Phaser.Scene {
 
     init(data) {
         this.jogs = data.jogs;
+
+        if (!this.sound.get('fim')) {
+            this.sound.removeAll()
+            this.sound.play('fim')
+        }
     }
 
     create() {

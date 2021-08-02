@@ -40,5 +40,12 @@ export default class Porta extends Phaser.Scene {
         image.displayHeight = sh;
 
         this.add.text(sw/2, 50, 'Masmorra '+(this.masmorra+1), {font: "40px Pirata_One"}).setOrigin(.5)
+
+        this.sound.getAll().forEach(musica=>{
+            this.tweens.addCounter({
+                from: 10, to: 0, duration:3000,
+                onUpdate: (t)=>{musica.setVolume(.1 * t.getValue())}
+            }).on('complete', ()=>this.sound.removeAll())
+        })
     }
 }

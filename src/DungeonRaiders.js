@@ -150,8 +150,21 @@ class Monstro {
 
 		// dois jogadores
 		if (jogs.length == 2) {
-			if (val_cartas[0] == val_cartas[1])
-				return ('? ? ?', danos, morto)
+			if (val_cartas[0] == val_cartas[1]) {
+				return ['? ? ?', danos, morto]
+			}
+			else {
+				if (val_cartas[0] >= val_cartas[1]) {
+					jogs[1].vida -= this.dano
+					danos[1][0] = '-'+this.dano
+					return ['', danos, morto]
+				}
+				else {
+					jogs[0].vida -= this.dano
+					danos[0][0] = '-'+this.dano
+					return ['', danos, morto]
+				}
+			}
 		}
 
 		if (val_cartas.reduce((x,i)=>x+i, 0) < this.vida[jogs.length]) {
@@ -197,7 +210,7 @@ class Tesouro {
 		if (this.bau2) {
 			val_cartas = val_cartas.filter(i=>i!=val_cartas[val_cartas.length-1])
 			if (val_cartas.length == 0)
-				return ('', din, false)
+				return ['', din, false]
 			x = Math.floor(this.bau2/val_cartas.filter(x=>x==val_cartas[val_cartas.length-1]).length)
 			for (let [i, jog] of jogs.entries()) {
 				if (DICT_CARTAS[jog.ultima] == val_cartas[val_cartas.length-1]) {

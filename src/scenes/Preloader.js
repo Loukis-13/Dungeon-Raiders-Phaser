@@ -73,6 +73,9 @@ export default class Preloader extends Phaser.Scene {
 
         let chefes = ['vampiro.jpg', 'minotauro.jpg', 'megadragao.jpg', 'chefe.jpg', 'coletor_de_impostos.jpg', 'hidra1.jpg', 'hidra.jpg', 'mumia.jpg', 'golem.jpg', 'esfinge.jpg', 'necromante.jpg', 'matilha_de_lobos.jpg', 'medusa.jpg']
         for (let i of chefes) this.load.image(i.split('.')[0], 'img/chefes/'+i);
+
+        let musica = ['jogo4.ogg', 'fim.ogg', 'jogo1.ogg', 'menu.ogg', 'jogo2.ogg', 'jogo3.ogg', 'jogo5.ogg', 'morte.ogg']
+        for (let i of musica) this.load.audio(i.split('.')[0], 'musica/'+i);
         
         this.load.plugin('rexgrayscalepipelineplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexgrayscalepipelineplugin.min.js', true);
     }

@@ -5,6 +5,14 @@ export default class Morte extends Phaser.Scene {
         super('Morte');
     }
 
+    init() {
+        if (!this.sound.get('morte')) {
+            this.sound.removeAll()
+            this.sound.play('morte')
+            this.sound.get('morte').setLoop(true)
+        }
+    }
+
     create() {
         let sw = this.cameras.main.width;
         let sh = this.cameras.main.height;

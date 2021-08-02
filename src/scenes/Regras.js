@@ -5,10 +5,6 @@ export default class Regras extends Phaser.Scene {
         super('Regras');
     }
 
-    preload() {
-        
-    }
-
     create() {
         let screenWidth = this.cameras.main.width;
         let screenHeight = this.cameras.main.height;
@@ -16,7 +12,7 @@ export default class Regras extends Phaser.Scene {
 
         let pg = 1;
 
-        // this.cameras.main.fadeIn(100, 0, 0, 0)
+        this.cameras.main.fadeIn(100, 0, 0, 0)
 
         let image = this.add.image(screenWidth/2, screenHeight/2, 'p1');
         image.displayWidth = screenWidth;

@@ -5,8 +5,12 @@ export default class Escolha extends Phaser.Scene {
         super('Escolha');
     }
 
-    preload() {
-        
+    init() {
+        if (!this.sound.get('menu')) {
+            this.sound.removeAll()
+            this.sound.play('menu')
+            this.sound.get('menu').setLoop(true)
+        }
     }
 
     create() {

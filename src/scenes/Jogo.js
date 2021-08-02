@@ -16,6 +16,12 @@ export default class Jogo extends Phaser.Scene {
         this.chefeEscolha = data.chefeEscolha;
 
         this.bolaDeCristal = data.bolaDeCristal
+
+        let musica = 'jogo'+(this.masmorra+1);
+        if (!this.sound.get(musica)) {
+            this.sound.play(musica)
+            this.sound.get(musica).setLoop(true)
+        }
     }
 
     create() {
