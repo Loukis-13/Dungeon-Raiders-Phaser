@@ -18,6 +18,7 @@ export default class Porta extends Phaser.Scene {
             this.masmorras = data.masmorras;
 
             this.sala = 0;
+            this.masmorra = data.masmorra;
 
             this.jogs.forEach(jog=>jog.redefinir());
         }

@@ -25,12 +25,12 @@ class Personagem {
     }
 
 	chefe_jogar(hab) {
-        var carta;
+        let carta;
 		while (true) {
-			carta = this.cartas[Math.floor(Math.random() * carta.length)];
-			if ((3 in hab) && (carta == 'espada'))
+			carta = this.cartas[Math.floor(Math.random() * this.cartas.length)];
+			if (hab.includes(3) && (carta == 'espada'))
 				continue;
-			if ((7 in hab) && (carta == 'bola_de_cristal'))
+			if (hab.includes(7) && (carta == 'bola_de_cristal'))
 				continue;
 			break;
         }
@@ -39,10 +39,10 @@ class Personagem {
 
 		this.cartas.push('0', '0', '0');
 		while (true) {
-			carta = this.cartas[Math.floor(Math.random() * carta.length)];
-			if (3 in hab && carta == 'espada')
+			carta = this.cartas[Math.floor(Math.random() * this.cartas.length)];
+			if (hab.includes(3) && carta == 'espada')
 				continue;
-			if (7 in hab && carta == 'bola_de_cristal')
+			if (hab.includes(7) && carta == 'bola_de_cristal')
 				continue;
 			break;
         }
@@ -51,7 +51,7 @@ class Personagem {
     }
 
 	redefinir() {
-		this.cartas = this.cartas.filter(c => !(c in ['1', '2', '3', '4', '5']))
+		this.cartas = this.cartas.filter(c => !['1', '2', '3', '4', '5'].includes(c))
 		this.cartas = ['1', '2', '3', '4', '5', ...this.cartas]
     }
 }
@@ -65,7 +65,7 @@ class Aboboda {
 	}
 
 	resolver(jogs) {
-		let val = Array(5).fill(['', '#fff'])
+		let val = Array(jogs.length).fill(['', '#fff'])
 
 		for (let [i, jog] of jogs.entries()) {
 			switch (jog.ultima) {
@@ -145,7 +145,7 @@ class Monstro {
 
 	resolver(jogs) {
 		let val_cartas = jogs.map(j=>DICT_CARTAS[j.ultima]).sort((a,b)=>a-b)
-		let danos = Array(5).fill(['', '#f00'])
+		let danos = Array(jogs.length).fill(['', '#f00'])
 		let morto = false
 
 		// dois jogadores
@@ -182,7 +182,7 @@ class Tesouro {
 
 	resolver(jogs) {
 		let val_cartas = jogs.map(j=>DICT_CARTAS[j.ultima]).sort((a,b)=>a-b)
-		let din = Array(5).fill(['', '#ff0'])
+		let din = Array(jogs.length).fill(['', '#ff0'])
 
 		let x = Math.floor(this.bau1/val_cartas.filter(x => x==val_cartas[val_cartas.length-1]).length)
 		for (let [i, jog] of jogs.entries()) {
@@ -225,7 +225,7 @@ class Armadilha {
 
 	resolver(jogs) {
 		let val_cartas = jogs.map(j=>DICT_CARTAS[j.ultima]).sort((a,b)=>a-b)
-		let val = Array(5).fill(['', '#f00'])
+		let val = Array(jogs.length).fill(['', '#f00'])
 
 		if (this.afeto == 'todos') {
 			if (val_cartas.includes(1))
@@ -348,96 +348,91 @@ class Chefe {
 	}
 
 	resolver(jogs) {
-		let val_cartas = jogs.map(j=>DICT_CARTAS[j.ultima]).sort((a,b)=>a-b)
-		let danos = Array(5).fill(['', '#f00'])
+		let CHEFE_DICT_CARTAS = {'0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, 'espada': 5, 'chave': 0, 'bola_de_cristal': 0, 'tocha': 0}
+		let danos = Array(jogs.length).fill(['', '#f00'])
 		let morto = false
 
-		// dois jogadores
-		if (jogs.length == 2) {
-			if (val_cartas[0] == val_cartas[1])
-				return ('? ? ?', danos, morto)
+		if (this.hab.includes(4)) {
+			if (this.nome == 'Múmia') {
+				CHEFE_DICT_CARTAS['tocha'] = 5
+			}
+			else if (this.nome == 'Vampiro') {
+				CHEFE_DICT_CARTAS['tocha'] = 3
+			}
+		}
+		if (this.hab.includes(6)) {
+			CHEFE_DICT_CARTAS['bola_de_cristal'] = 5
 		}
 
-		if (val_cartas.reduce((x,i)=>x+i, 0) < this.vida[jogs.length]) {
-			for (let [i, jog] of jogs.entries()) {
-				if (DICT_CARTAS[jog.ultima] == val_cartas[0]) {
-					jog.vida += this.dano
-					danos[i] = [this.dano, '#f00']
-					if (jog.vida < 0)
-						jog.vida = 0
+		let val_cartas = jogs.map(j=>j.ultima.map(i=>CHEFE_DICT_CARTAS[i]).reduce((a,b)=>a+b,0)).sort((a,b)=>a-b)
+
+		if (this.hab.includes(8)) {
+			this.dano = -Math.max(...jogs.flatMap(j=>j.ultima.map(i=>CHEFE_DICT_CARTAS[i])))
+		}
+
+		if (val_cartas.reduce((a,b)=>a+b, 0) >= this.vida[jogs.length]) {
+			morto = true
+			if (this.hab.includes(5)) {
+				let moedas_bau_chefe = jogs.flatMap(j=>Math.max(...j.ultima.map(i=>i!='espada'?DICT_CARTAS[i]:0)));
+				for (let [i, jog] of jogs.entries()) {
+					if (jog.ultima.map(i=>i!='espada'?DICT_CARTAS[i]:0).includes(Math.max(...moedas_bau_chefe))) {
+						jog.moedas += 3;
+						if (jog.moedas > 20)
+							jog.moedas = 20;
+						danos[i] = ['+'+3, '#ff0'];
+					}
 				}
 			}
 		}
-		else
-			morto = true
+		else {
+			for (let [i, jog] of jogs.entries()) {
+				if (!this.hab.includes(2)) {
+					if (jog.ultima.map(j=>CHEFE_DICT_CARTAS[j]).reduce((a,b)=>a+b,0) == val_cartas[0]) {
+						if (this.hab.includes(11)) {
+							if (jog.ultima.includes('tocha')) {
+								continue
+							}
+						}
+						jog.vida += this.dano
+						danos[i] = [String(this.dano), '#f00']
+						if (jog.vida < 0) {
+							jog.vida = 0
+						}
+						if (this.hab.includes(9)) {
+							jog.moedas -= (val_cartas[val_cartas.length-1] < 5) ? val_cartas[val_cartas.length-1] : 5
+							if (jog.moedas < 0) {
+								jog.moedas = 0
+							}
+						}
+					}
+				}
+				else {
+					let x = Math.max(...jogs.flatMap(j=>j.ultima.map(i=>CHEFE_DICT_CARTAS[i])))
+					if (Math.max(...jog.ultima.map(i=>CHEFE_DICT_CARTAS[i])) == x) {
+						jog.vida += this.dano
+						danos[i] = [String(this.dano), '#f00']
+						if (jog.vida < 0) {
+							jog.vida = 0
+						}
+					}
+				}
+			}
+			if (this.hab.includes(1)) {
+				val_cartas = val_cartas.filter(x=>x!=Math.min(...val_cartas))
+				for (let [i, jog] of jogs.entries()) {
+					if (jog.ultima.map(i=>CHEFE_DICT_CARTAS[i]).includes(val_cartas[0])) {
+						jog.vida += this.dano
+						danos[i] = [String(this.dano), '#f00']
+						if (jog.vida < 0) {
+							jog.vida = 0
+						}
+					}
+				}
+			}
+		}
 
-		return [val_cartas.reduce((a,b)=>a+b,0), danos, morto]
+		return [String(val_cartas.reduce((x,i)=>x+(i?i:0), 0)), danos, morto]
 	}
-
-// 	def resolver(this):
-// 		CHEFE_DICT_CARTAS = {'0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, 'espada': 5, 'chave': 0, 'bola_de_cristal': 0, 'tocha': 0}
-// 		danos = Array(5).fill(['', [0, 0, 0, 0]])
-// 		morto = false
-
-// 		if 4 in this.hab:
-// 			if this.nome == 'Múmia':
-// 				CHEFE_DICT_CARTAS['tocha'] = 5
-// 			else if this.nome == 'Vampiro':
-// 				CHEFE_DICT_CARTAS['tocha'] = 3
-// 		if 6 in this.hab:
-// 			CHEFE_DICT_CARTAS['bola_de_cristal'] = 5
-
-// 		val_cartas = sort([sum(CHEFE_DICT_CARTAS[i] for i in j.ultima) for j in jogs])
-// 		val_cartas = jogs.map(j=>CHEFE_DICT_CARTAS[j.ultima]).sort((a,b)=>a-b)
-
-// 		if 8 in this.hab:
-// 			this.dano = -min(val_cartas[-1], 5)
-
-// 		if sum(val_cartas) >= this.vida[len(jogs)]:
-// 			morto = true
-// 			if 5 in this.hab:
-// 				moedas_bau_chefe = sort(
-// 					[max(DICT_CARTAS[i] if i != 'espada' else 0 for i in j.ultima) for j in jogs])
-// 				for (let [i, jog] of jogs.entries())
-// 					if max(DICT_CARTAS[i] for i in jog.ultima) == moedas_bau_chefe[-1]:
-// 						jog.moedas += this.bau1//moedas_bau_chefe.count(
-// 							moedas_bau_chefe[-1])
-// 						if jog.moedas > 20:
-// 							jog.moedas = 20
-// 						danos[i] = [
-// 							this.bau1//moedas_bau_chefe.count(moedas_bau_chefe[-1]), '#ff0']
-// 		else:
-// 			for (let [i, jog] of jogs.entries())
-// 				if 2 not in this.hab:
-// 					if sum(CHEFE_DICT_CARTAS[j] for j in jog.ultima) == val_cartas[0]:
-// 						if 11 in this.hab:
-// 							if 'tocha' in jog.ultima:
-// 								continue
-// 						jog.vida += this.dano
-// 						danos[i] = [str(this.dano), '#f00']
-// 						if jog.vida < 0:
-// 							jog.vida = 0
-// 						if 9 in this.hab:
-// 							jog.moedas -= val_cartas[-1] if val_cartas[-1] < 5 else 5
-// 							if jog.moedas < 0:
-// 								jog.moedas = 0
-// 				else:
-// 					if max(CHEFE_DICT_CARTAS[i] for i in jog.ultima) == val_cartas[-1] if val_cartas[-1] < 5 else 5:
-// 						jog.vida += this.dano
-// 						danos[i] = [str(this.dano), '#f00']
-// 						if jog.vida < 0:
-// 							jog.vida = 0
-
-// 			if 1 in this.hab:
-// 				val_cartas = [i for i in val_cartas if i != val_cartas[0]]
-// 				for i, p in enumerate(jogs):
-// 					if min(CHEFE_DICT_CARTAS[i] for i in jog.ultima) == val_cartas[0]:
-// 						jog.vida += this.dano
-// 						danos[i] = [str(this.dano), '#f00']
-// 						if jog.vida < 0:
-// 							jog.vida = 0
-
-// 		return (str(sum(val_cartas)), danos, morto)
 }
 
 export function gerarMasmorra() {
