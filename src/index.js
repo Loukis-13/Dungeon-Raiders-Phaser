@@ -12,7 +12,7 @@ var config = {
     width: 1280,
     height: 720,
     scale: {
-        // mode: Phaser.Scale.FIT,
+        mode: (window.screen.availWidth < 1280 || window.screen.availHeight < 720) ? Phaser.Scale.FIT : Phaser.Scale.NONE,
         autoCenter: Phaser.Scale.CENTER_BOTH
     },
     scene: [Preloader, Menu, Regras, Escolha, Porta, Jogo, Morte, FimDeJogo]
