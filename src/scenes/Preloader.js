@@ -78,5 +78,8 @@ export default class Preloader extends Phaser.Scene {
         for (let i of musica) this.load.audio(i.split('.')[0], 'musica/'+i);
         
         this.load.plugin('rexgrayscalepipelineplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexgrayscalepipelineplugin.min.js', true);
+
+        this.load.image('som', 'img/som.png')
+        this.load.image('mudo', 'img/mudo.png')
     }
 }

@@ -7,9 +7,10 @@ export default class Morte extends Phaser.Scene {
 
     init() {
         if (!this.sound.get('morte')) {
+            let mute = this.sound.getAll()[0].config.mute
             this.sound.removeAll()
             this.sound.play('morte')
-            this.sound.get('morte').setLoop(true)
+            this.sound.get('morte').setLoop(true).setMute(mute)
         }
     }
 

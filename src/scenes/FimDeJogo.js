@@ -9,8 +9,10 @@ export default class FimDeJogo extends Phaser.Scene {
         this.jogs = data.jogs;
 
         if (!this.sound.get('fim')) {
+            let mute = this.sound.getAll()[0].config.mute
             this.sound.removeAll()
             this.sound.play('fim')
+            this.sound.get('fim').setMute(mute)
         }
     }
 

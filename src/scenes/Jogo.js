@@ -20,7 +20,7 @@ export default class Jogo extends Phaser.Scene {
         let musica = 'jogo'+(this.masmorra+1);
         if (!this.sound.get(musica)) {
             this.sound.play(musica)
-            this.sound.get(musica).setLoop(true)
+            this.sound.get(musica).setLoop(true).setMute(data.mute)
         }
     }
 
@@ -30,31 +30,41 @@ export default class Jogo extends Phaser.Scene {
         this.style = {font: "32px Pirata_One"};
         let aviso_style = {font: "55px Pirata_One", stroke: '#000', strokeThickness: 2}
 
+        // plano de fundo
         let image = this.add.image(this.sw/2, this.sh/2, 'fundo');
         image.displayWidth = this.sw;
         image.displayHeight = this.sh;
 
+        // botao para retornar ao menu
         new Botao(this, 100, 35, 'Menu', this.style, 'Escolha', 200, 60)
 
+        // conteudo da sala
         this.masmorras[this.masmorra][this.sala].escuro = false
         this.conteudoSala = this.add.image(this.sw/2, this.sh/2.2, this.masmorras[this.masmorra][this.sala].imagem)
         this.conteudoSala.setScale(this.sh/this.conteudoSala.height/2)
 
+        // total de dano
         this.resultadoTexto = this.add.text(this.sw/2, 100, '', aviso_style).setOrigin(.5).setAlpha(0);
 
+        // informações dos jogadores
         this.infoJogs()
 
+        // cartas do jogador 1
         this.cartasJogador()
 
+        // mapa da masmorra
         this.mapa()
         
+        // aviso caso nenhuma carta seja escolhida
         this.no_e = this.add.text(this.sw/2, this.sh/3.3, 'Escolhe uma carta', aviso_style).setOrigin(.5).setAlpha(0);
 
+        // botao para jogar a carta escolhida
         this.botao = this.add.image(this.sw/8*7, this.sh/6*4, 'botao')
             .setInteractive({useHandCursor: true})
             .on('pointerdown', ()=>this.jogar());
         this.add.text(this.botao.x, this.botao.y, 'Jogar', this.style).setOrigin(.5);
 
+        // logica da bola de cristal
         if (this.jogs[0].ultima == "bola_de_cristal") {
             for (let [i, j] of this.jogs.entries()) {
                 this.cartaJogada[i].setTexture(j.ultima)
@@ -63,6 +73,7 @@ export default class Jogo extends Phaser.Scene {
             this.tweens.add({targets: this.cartaJogada, alpha: 1, duration:1000})
         }
 
+        // logica do chefe
         if (this.chefeEscolha) {
             this.no_e.setText("Escolhe outra carta\nou clica em 'Jogar'") 
             this.tweens.add({targets: this.no_e, alpha: 1, duration:1000, yoyo:true, hold: 2000})
@@ -137,7 +148,41 @@ export default class Jogo extends Phaser.Scene {
             else
                 s = this.add.image(w, 0, sala.imagem).setOrigin(1, 0).setScale(.25)
             w += s.width * .25 -2
+
+            s.setInteractive({useHandCursor: true}).on('pointerup', this.mapaPopup, this)
         }
+    }
+
+    mapaPopup() {
+        let popup = this.add.group()
+
+        popup.add(
+            this.add.graphics()
+                .fillStyle(0x222222, 0.8)
+                .fillRect(0, 0, 1280, 720)
+        )
+
+        popup.add(this.add.text(this.sw/2, 120, "Masmorra "+this.masmorra, this.style).setOrigin(.5))
+
+        let w = 170
+        for (let sala of this.masmorras[this.masmorra]) {
+            let s;
+            if (sala.escuro && (sala.tipo == 'Chefe'))
+                s = this.add.image(w, this.sh/2, 'chefe').setScale(.7)
+            else if (sala.escuro)
+                s = this.add.image(w, this.sh/2, 'vazio').setScale(.7)
+            else
+                s = this.add.image(w, this.sh/2, sala.imagem).setScale(.7)
+            w += s.width*.7 + 10
+
+            popup.add(s)
+        }
+
+        popup.children.each((c)=>c.setDepth(1))
+
+        this.input.once('pointerdown', ()=>{
+            popup.children.each((child)=>child.destroy())
+        })
     }
 
     jogar() {

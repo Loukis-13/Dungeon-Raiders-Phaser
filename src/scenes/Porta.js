@@ -24,7 +24,7 @@ export default class Porta extends Phaser.Scene {
         }
         this.time.delayedCall(4000, ()=>{
             this.cameras.main.fadeOut(1000, 0, 0, 0).on('camerafadeoutcomplete', ()=>{
-                this.scene.start('Jogo', {jogs: this.jogs, masmorras: this.masmorras, sala: this.sala, masmorra: this.masmorra});
+                this.scene.start('Jogo', {jogs: this.jogs, masmorras: this.masmorras, sala: this.sala, masmorra: this.masmorra, mute: this.mute});
             });
         });
     }
@@ -45,7 +45,10 @@ export default class Porta extends Phaser.Scene {
             this.tweens.addCounter({
                 from: 10, to: 0, duration:3000,
                 onUpdate: (t)=>{musica.setVolume(.1 * t.getValue())}
-            }).on('complete', ()=>this.sound.removeAll())
+            }).on('complete', ()=>{
+                this.mute = this.sound.getAll()[0].config.mute
+                this.sound.removeAll()
+            })
         })
     }
 }

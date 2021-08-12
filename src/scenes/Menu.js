@@ -14,16 +14,26 @@ export default class Menu extends Phaser.Scene {
     }
     
     create() {
-        let screenWidth = this.cameras.main.width;
-        let screenHeight = this.cameras.main.height;
+        let sw = this.cameras.main.width;
+        let sh = this.cameras.main.height;
         let style = { font: "32px Pirata_One"};
 
-        let image = this.add.sprite(screenWidth/2, screenHeight/2, 'menu');
-        image.displayWidth = screenWidth;
-        image.displayHeight = screenHeight;
+        let image = this.add.sprite(sw/2, sh/2, 'menu');
+        image.displayWidth = sw;
+        image.displayHeight = sh;
 
-        new Botao(this, screenWidth/2, screenHeight/1.1, 'Jogar', style, 'Escolha')
+        new Botao(this, sw/2, sh/1.1, 'Jogar', style, 'Escolha')
 
-        new Botao(this, screenWidth/1.15, screenHeight/1.1, 'Regras', style, 'Regras')
+        new Botao(this, sw/1.15, sh/1.1, 'Regras', style, 'Regras')
+
+        let musica = this.sound.get('menu')
+        let som = this.add.image(sw-5, 5, musica.mute?'mudo':'som')
+            .setOrigin(1, 0)
+            .setScale(.5)
+            .setInteractive({useHandCursor: true})
+        som.on('pointerdown', ()=>{
+                musica.setMute(!musica.mute)
+                som.setTexture(musica.mute?'mudo':'som')
+            });
     }
 }
