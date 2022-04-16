@@ -139,7 +139,7 @@ class Monstro {
 	}
 
 	resolver(jogs) {
-		let val_cartas = jogs.map(j=>DICT_CARTAS[j.ultima]).sort((a,b)=>a-b)
+		let val_cartas = jogs.map(j=>DICT_CARTAS[j.ultima])
 		let danos = Array(jogs.length).fill(['', '#f00'])
 		let morto = false
 
@@ -149,19 +149,20 @@ class Monstro {
 				return ['? ? ?', danos, morto]
 			}
 			else {
-				if (val_cartas[0] > val_cartas[1]) {
+				if (val_cartas[0] >= val_cartas[1]) {
 					jogs[1].vida += this.dano
-					danos[1][0] = ''+this.dano
+					danos[1] = [this.dano, '#f00']
 					return ['', danos, morto]
 				} else {
 					jogs[0].vida += this.dano
-					danos[0][0] = ''+this.dano
+					danos[0] = [this.dano, '#f00']
 					return ['', danos, morto]
 				}
 			}
 		}
 
 		if (val_cartas.reduce((x,i)=>x+i, 0) < this.vida[jogs.length]) {
+			val_cartas = val_cartas.sort((a,b)=>a-b)
 			for (let [i, jog] of jogs.entries()) {
 				if (DICT_CARTAS[jog.ultima] == val_cartas[0]) {
 					jog.vida += this.dano
