@@ -73,8 +73,7 @@ class Aboboda {
 					if (this.itens == 1) {
 						jog.cartas.push('tocha')
 						val[i] = ['tocha', '#fff']
-					}
-					else {
+					} else {
 						jog.moedas += 1
 						val[i] = ['+1', '#ff0']
 					}
@@ -84,8 +83,7 @@ class Aboboda {
 					if (this.itens == 1) {
 						jog.cartas.push('bola_de_cristal')
 						val[i] = ['bola_de_cristal', '#fff']
-					}
-					else {
+					} else {
 						jog.moedas += 2
 						val[i] = ['+2', '#ff0']
 					}
@@ -95,8 +93,7 @@ class Aboboda {
 					if (this.itens == 1) {
 						jog.cartas.push('chave')
 						val[i] = ['chave', '#fff']
-					}
-					else {
+					} else {
 						jog.vida += 1
 						val[i] = ['+1', '#f00']
 					}
@@ -106,8 +103,7 @@ class Aboboda {
 					if (this.itens == 1) {
 						jog.cartas.push('espada')
 						val[i] = ['espada', '#fff']
-					}
-					else {
+					} else {
 						jog.moedas += 3
 						val[i] = ['+3', '#ff0']
 					}
@@ -117,8 +113,7 @@ class Aboboda {
 					if (this.itens == 1) {
 						jog.vida += 1
 						val[i] = ['+1', '#f00']
-					}
-					else {
+					} else {
 						jog.vida += 2
 						val[i] = ['+2', '#f00']
 					}
@@ -155,11 +150,9 @@ class Monstro {
 			}
 			else {
 				if (val_cartas[0] >= val_cartas[1]) {
-					jogs[1].vida -= this.dano
-					danos[1][0] = '-'+this.dano
+					jogs[1].vida += this.dano
 					return ['', danos, morto]
-				}
-				else {
+				} else {
 					jogs[0].vida -= this.dano
 					danos[0][0] = '-'+this.dano
 					return ['', danos, morto]
@@ -276,8 +269,7 @@ class Armadilha {
 							jog.vida = 0
 						val[i] = ['-1', '#f00']
 					}
-		}
-		else {
+		} else {
 			if (this.valor == 'moedas') {
 				let a = Math.max(...jogs.map(j=>j.moedas))
 				if (val_cartas.includes(5)) {
@@ -289,8 +281,7 @@ class Armadilha {
 							val[i] = ['-3', '#ff0']
 						}
 					}
-				}
-				else if (val_cartas.includes(4)) {
+				} else if (val_cartas.includes(4)) {
 					for (let [i, jog] of jogs.entries()) {
 						if (jog.moedas == a) {
 							jog.moedas -= 2
@@ -299,8 +290,7 @@ class Armadilha {
 							val[i] = ['-2', '#ff0']
 						}
 					}
-				}
-				else if (val_cartas.includes(3)) {
+				} else if (val_cartas.includes(3)) {
 					for (let [i, jog] of jogs.entries()) {
 						if (jog.moedas == a) {
 							jog.moedas -= 1
@@ -310,8 +300,7 @@ class Armadilha {
 						}
 					}
 				}
-			}
-			else {
+			} else {
 				let a = Math.max(...jogs.map(j=>j.vida))
 				if (val_cartas.includes(5)) {
 					for (let [i, jog] of jogs.entries()) {
@@ -322,8 +311,7 @@ class Armadilha {
 							val[i] = ['-3', '#f00']
 						}
 					}
-				}
-				else if (val_cartas.includes(4)) {
+				} else if (val_cartas.includes(4)) {
 					for (let [i, jog] of jogs.entries()) {
 						if (jog.vida == a) {
 							jog.vida -= 2
@@ -332,8 +320,7 @@ class Armadilha {
 							val[i] = ['-2', '#f00']
 						}
 					}
-				}
-				else if (val_cartas.includes(3)) {
+				} else if (val_cartas.includes(3)) {
 					for (let [i, jog] of jogs.entries()) {
 						if (jog.vida == a) {
 							jog.vida -= 1
@@ -368,8 +355,7 @@ class Chefe {
 		if (this.hab.includes(4)) {
 			if (this.nome == 'Múmia') {
 				CHEFE_DICT_CARTAS['tocha'] = 5
-			}
-			else if (this.nome == 'Vampiro') {
+			} else if (this.nome == 'Vampiro') {
 				CHEFE_DICT_CARTAS['tocha'] = 3
 			}
 		}
@@ -396,8 +382,7 @@ class Chefe {
 					}
 				}
 			}
-		}
-		else {
+		} else {
 			for (let [i, jog] of jogs.entries()) {
 				if (!this.hab.includes(2)) {
 					if (jog.ultima.map(j=>CHEFE_DICT_CARTAS[j]).reduce((a,b)=>a+b,0) == val_cartas[0]) {
@@ -418,8 +403,7 @@ class Chefe {
 							}
 						}
 					}
-				}
-				else {
+				} else {
 					let x = Math.max(...jogs.flatMap(j=>j.ultima.map(i=>CHEFE_DICT_CARTAS[i])))
 					if (Math.max(...jog.ultima.map(i=>CHEFE_DICT_CARTAS[i])) == x) {
 						jog.vida += this.dano
