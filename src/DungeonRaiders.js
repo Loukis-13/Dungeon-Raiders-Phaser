@@ -149,12 +149,11 @@ class Monstro {
 				return ['? ? ?', danos, morto]
 			}
 			else {
-				if (val_cartas[0] >= val_cartas[1]) {
+				if (val_cartas[0] > val_cartas[1]) {
 					jogs[1].vida += this.dano
 					return ['', danos, morto]
 				} else {
-					jogs[0].vida -= this.dano
-					danos[0][0] = '-'+this.dano
+					jogs[0].vida += this.dano
 					return ['', danos, morto]
 				}
 			}
