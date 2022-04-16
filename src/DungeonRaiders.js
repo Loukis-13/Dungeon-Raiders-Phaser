@@ -529,20 +529,22 @@ export function gerarMasmorra() {
 }
 
 export function gerarJogadores(quant_jogs, escolha) {
-	let guerreiro =   new Personagem('Guerreiro',   10, 2, 'gue', ['1', '2', '3', '4', '5'])
-	let mago =        new Personagem('Mago',        9,  1, 'mag', ['1', '2', '3', '4', '5', 'bola_de_cristal', 'bola_de_cristal'])
-	let cavaleiro =   new Personagem('Cavaleiro',   9,  1, 'cav', ['1', '2', '3', '4', '5', 'espada'])
-	let exploradora = new Personagem('Exploradora', 8,  3, 'exp', ['1', '2', '3', '4', '5', 'tocha'])
-	let ladra =       new Personagem('Ladra',       8,  2, 'lad', ['1', '2', '3', '4', '5', 'chave'])
-
-    let persIndex = {'guerreiro': 0, 'mago': 1, 'ladra': 2, 'exploradora': 3, 'cavaleiro': 4}
-	let pers = [guerreiro, mago, ladra, exploradora, cavaleiro]
+	let pers = [
+		new Personagem('Guerreiro',   10, 2, 'gue', ['1', '2', '3', '4', '5']),
+		new Personagem('Mago',        9,  1, 'mag', ['1', '2', '3', '4', '5', 'bola_de_cristal', 'bola_de_cristal']),
+		new Personagem('Ladra',       8,  2, 'lad', ['1', '2', '3', '4', '5', 'chave']),
+		new Personagem('Exploradora', 8,  3, 'exp', ['1', '2', '3', '4', '5', 'tocha']),
+		new Personagem('Cavaleiro',   9,  1, 'cav', ['1', '2', '3', '4', '5', 'espada'])
+	]
 
 	let jogs = []
 
-	if (escolha != 'aleatorio')
-        jogs.push(pers.splice(persIndex[escolha], 1)[0])
-	for (let i in '0'.repeat(quant_jogs-jogs.length))
+	if (escolha != 'aleatorio') {
+		let persIndex = {'guerreiro': 0, 'mago': 1, 'ladra': 2, 'exploradora': 3, 'cavaleiro': 4}
+        jogs.push(pers.splice(persIndex[escolha], 1)[0]);
+		quant_jogs--;
+	}
+	for (let i in '0'.repeat(quant_jogs))
         jogs.push(pers.splice(Math.floor(Math.random()*pers.length), 1)[0])
 
 	return jogs
