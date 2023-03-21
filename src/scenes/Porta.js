@@ -1,4 +1,4 @@
-import {gerarJogadores, gerarMasmorra} from "../DungeonRaiders.js"
+import { gerarJogadores, gerarMasmorra } from "../DungeonRaiders.js"
 
 export default class Porta extends Phaser.Scene {
     constructor() {
@@ -12,19 +12,19 @@ export default class Porta extends Phaser.Scene {
 
             this.jogs = gerarJogadores(data.qjog, data.escolha);
             this.masmorras = gerarMasmorra();
-        }
-        else {
+        } else {
             this.jogs = data.jogs;
             this.masmorras = data.masmorras;
 
             this.sala = 0;
             this.masmorra = data.masmorra;
 
-            this.jogs.forEach(jog=>jog.redefinir());
+            this.jogs.forEach(jog => jog.redefinir());
         }
-        this.time.delayedCall(4000, ()=>{
-            this.cameras.main.fadeOut(1000, 0, 0, 0).on('camerafadeoutcomplete', ()=>{
-                this.scene.start('Jogo', {jogs: this.jogs, masmorras: this.masmorras, sala: this.sala, masmorra: this.masmorra, mute: this.mute});
+
+        this.time.delayedCall(4000, () => {
+            this.cameras.main.fadeOut(1000, 0, 0, 0).on('camerafadeoutcomplete', () => {
+                this.scene.start('Jogo', { jogs: this.jogs, masmorras: this.masmorras, sala: this.sala, masmorra: this.masmorra, mute: this.mute });
             });
         });
     }
@@ -35,17 +35,17 @@ export default class Porta extends Phaser.Scene {
         let sw = this.cameras.main.width;
         let sh = this.cameras.main.height;
 
-        let image = this.add.image(sw/2, sh/2, 'porta');
+        let image = this.add.image(sw / 2, sh / 2, 'porta');
         image.displayWidth = sw;
         image.displayHeight = sh;
 
-        this.add.text(sw/2, 50, 'Masmorra '+(this.masmorra+1), {font: "40px Pirata_One"}).setOrigin(.5)
+        this.add.text(sw / 2, 50, `Masmorra ${this.masmorra + 1}`, { font: "40px Pirata_One" }).setOrigin(.5)
 
-        this.sound.getAll().forEach(musica=>{
+        this.sound.getAll().forEach(musica => {
             this.tweens.addCounter({
-                from: 10, to: 0, duration:3000,
-                onUpdate: (t)=>{musica.setVolume(.1 * t.getValue())}
-            }).on('complete', ()=>{
+                from: 10, to: 0, duration: 3000,
+                onUpdate: (t) => { musica.setVolume(.1 * t.getValue()) }
+            }).on('complete', () => {
                 this.mute = this.sound.getAll()[0].config.mute
                 this.sound.removeAll()
             })

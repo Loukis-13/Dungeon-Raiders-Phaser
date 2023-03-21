@@ -1,0 +1,1 @@
+export const DICT_CARTAS = { 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, espada: 5, chave: 5, bola_de_cristal: 0, tocha: 0 }
