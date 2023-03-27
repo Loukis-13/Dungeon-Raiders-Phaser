@@ -9,28 +9,26 @@ export class Aboboda {
 		this.escuro = false
 	}
 
-	resolver(jogs) {
-		let val = Array(jogs.length).fill(['', '#fff'])
+	resolver(game) {
+        const { jogs } = game
 
 		for (let [i, jog] of jogs.entries()) {
-            let [item, type] = this.itens[Number(jog.ultima) - 1]
+            let [item, type] = this.itens[Number(jog.ultima[0]) - 1]
 
             switch (type) {
                 case 'c':
                     jog.cartas.push(item)
-                    val[i] = [item, '#fff']
+                    game.resultadoAboboda[i].setTexture(item)
                     break;
                 case 'v':
                     jog.vida += item
-                    val[i] = [`+${item}`, '#f00']
+                    game.resultadoPersona[i].setText(`+${item}`).setColor('#f00')
                     break;
                 case 'm':
                     jog.moedas += item
-                    val[i] = [`+${item}`, '#ff0']
+                    game.resultadoPersona[i].setText(`+${item}`).setColor('#ff0')
                     break;
             }
         }
-
-		return ['', val, false]
 	}
 }

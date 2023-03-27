@@ -8,7 +8,7 @@ export class Personagem {
         this.#moedas = moedas;
         this.imagem = imagem;
         this.cartas = cartas;
-        this.ultima;
+        this.ultima = [];
     }
 
     get vida() {
@@ -31,48 +31,32 @@ export class Personagem {
         if (this.#moedas > 20) this.#moedas = 20
     }
 
-    jogar(tipo) {
-        var carta;
-        while (true) {
-            carta = this.cartas[Math.floor(Math.random() * this.cartas.length)];
-            if (((carta == 'chave') && (tipo != 'Tesouro')) || ((carta == 'espada') && (tipo != 'Monstro')))
-                continue;
-            if ((carta == 'tocha') || (carta == 'bola_de_cristal'))
-                continue;
-            break;
-        }
-        this.ultima = carta;
-        this.cartas.splice(this.cartas.indexOf(carta), 1);
-    }
+    jogar(classeSala, qnt) {
+        this.ultima = []
+        qnt = qnt || 1
+        for (let index = 0; index < qnt; index++) {
+            const cartas = this.cartas.filter(carta => !(
+                (carta == "tocha") ||
+                (carta == "bola_de_cristal") ||
+                ((carta == "chave") && (classeSala != "Tesouro")) ||
+                ((carta == "espada") && (classeSala != "Monstro")) ||
+                ((carta == "espada") && (classeSala == "Golem")) ||
+                ((carta == "bola_de_cristal") && (classeSala == "Necromante"))
+            ))
 
-    chefe_jogar(hab) {
-        let carta;
-        while (true) {
-            carta = this.cartas[Math.floor(Math.random() * this.cartas.length)];
-            if (hab.includes(3) && (carta == 'espada'))
-                continue;
-            if (hab.includes(7) && (carta == 'bola_de_cristal'))
-                continue;
-            break;
-        }
-        this.ultima = [carta, '0'];
-        this.cartas.splice(this.cartas.indexOf(carta), 1);
+            if (cartas.length == 0) {
+                this.ultima.push("0");
+                continue
+            }
 
-        this.cartas.push('0', '0', '0');
-        while (true) {
-            carta = this.cartas[Math.floor(Math.random() * this.cartas.length)];
-            if (hab.includes(3) && carta == 'espada')
-                continue;
-            if (hab.includes(7) && carta == 'bola_de_cristal')
-                continue;
-            break;
+            const carta = cartas[Math.floor(Math.random() * cartas.length)];
+            this.ultima.push(carta);
+            this.cartas.splice(this.cartas.indexOf(carta), 1);
         }
-        this.ultima[1] = carta;
-        this.cartas.splice(this.cartas.indexOf(carta), 1);
     }
 
     redefinir() {
-        this.cartas = this.cartas.filter(c => !['1', '2', '3', '4', '5'].includes(c))
-        this.cartas = ['1', '2', '3', '4', '5', ...this.cartas]
+        this.cartas = this.cartas.filter(c => !"12345".includes(c))
+        this.cartas = [..."12345", ...this.cartas]
     }
 }

@@ -14,6 +14,7 @@ export default class Jogo extends Phaser.Scene {
 
         this.masmorra = data.masmorra;
         this.sala = data.sala;
+        this.salaAtual = this.masmorras[this.masmorra][this.sala]
 
         this.escolha = data.escolha;
         this.chefeEscolha = data.chefeEscolha;
@@ -23,7 +24,7 @@ export default class Jogo extends Phaser.Scene {
         let musica = `jogo${this.masmorra + 1}`;
         if (!this.sound.get(musica)) {
             this.sound.play(musica)
-            this.sound.get(musica).setLoop(true).setMute(data.mute)
+            this.sound.get(musica).setLoop(true)
         }
     }
 
@@ -42,8 +43,8 @@ export default class Jogo extends Phaser.Scene {
         new Botao(this, 100, 35, 'Menu', this.style, 'Escolha', 200, 60)
 
         // conteudo da sala
-        this.masmorras[this.masmorra][this.sala].escuro = false
-        this.conteudoSala = this.add.image(this.sw / 2, this.sh / 2.2, this.masmorras[this.masmorra][this.sala].imagem)
+        this.salaAtual.escuro = false
+        this.conteudoSala = this.add.image(this.sw / 2, this.sh / 2.2, this.salaAtual.imagem)
         this.conteudoSala.setScale(this.sh / this.conteudoSala.height / 2)
 
         // total de dano
@@ -53,7 +54,7 @@ export default class Jogo extends Phaser.Scene {
         this.infoJogs()
 
         // cartas do jogador 1
-        this.cartasJogador()
+        this.mostrarCartasJogador()
 
         // mapa da masmorra
         this.mapa()
@@ -84,6 +85,7 @@ export default class Jogo extends Phaser.Scene {
     }
 
     infoJogs() {
+        this.jogInfo = this.add.group()
         this.cartaJogada = []
         this.cartaJogada2 = []
         this.resultadoPersona = []
@@ -93,6 +95,7 @@ export default class Jogo extends Phaser.Scene {
         let h = 120
         for (let jog of this.jogs) {
             let per = this.add.image(105, h, jog.imagem).setScale(.70)
+            this.jogInfo.add(per)
             this.add.text(per.x + 16, per.y, jog.vida, { font: "28px Pirata_One" }).setOrigin(.5)
             this.add.text(per.x + 64, per.y, jog.moedas, { font: "28px Pirata_One" }).setOrigin(.5)
 
@@ -105,14 +108,14 @@ export default class Jogo extends Phaser.Scene {
         }
     }
 
-    cartasJogador() {
+    mostrarCartasJogador() {
         this.selecionado = this.add.image(-500, -500, 'selecionado').setScale(.36).setOrigin(.5, 1).setDepth(1)
 
         let w = this.sw / 4
         for (let carta of this.jogs[0].cartas) {
-            let cartaImg = this.add.image(w, this.sh, carta).setOrigin(.5, 1).setScale(.6)
+            const cartaImg = this.add.image(w, this.sh, carta).setOrigin(.5, 1).setScale(.6)
 
-            let sala = this.masmorras[this.masmorra][this.sala]
+            const sala = this.salaAtual
             if (
                 ((carta == 'chave') && !(sala instanceof Tesouro) && !(sala instanceof Chefe)) ||
                 ((carta == 'espada') && ((!(sala instanceof Monstro) && !(sala instanceof Chefe)) || (sala instanceof Golem))) ||
@@ -153,6 +156,14 @@ export default class Jogo extends Phaser.Scene {
                 .setInteractive({ useHandCursor: true })
                 .on('pointerup', this.mapaPopup, this)
 
+            if (sala == this.salaAtual) {
+                this.add.image(w, 0, 'selecionado')
+                    .setOrigin(1, 0)
+                    .setScale(.25)
+                    .setInteractive({ useHandCursor: true })
+                    .on('pointerup', this.mapaPopup, this)
+            }
+
             w += img.width * .25 - 2
         }
     }
@@ -160,7 +171,7 @@ export default class Jogo extends Phaser.Scene {
     mapaPopup() {
         let popup = this.add.group()
             .add(this.add.graphics().fillStyle(0x222222, 0.8).fillRect(0, 0, 1280, 720))
-            .add(this.add.text(this.sw / 2, 120, "Masmorra " + this.masmorra, this.style).setOrigin(.5))
+            .add(this.add.text(this.sw / 2, 120, `Masmorra ${this.masmorra + 1}`, this.style).setOrigin(.5))
 
         let w = 170
         for (let sala of this.masmorras[this.masmorra]) {
@@ -173,14 +184,47 @@ export default class Jogo extends Phaser.Scene {
                 carta = sala.imagem
 
             const img = this.add.image(w, this.sh / 2, carta).setScale(.7)
-            w += img.width * .7 + 10
-
             popup.add(img)
+
+            if (sala == this.salaAtual) {
+                popup.add(this.add.image(w, this.sh / 2, 'selecionado').setScale(.7))
+            }
+
+            w += img.width * .7 + 10
         }
 
         popup.children.each(c => c.setDepth(1))
 
         this.input.once('pointerdown', () => popup.children.each((child) => child.destroy()))
+    }
+
+    animacaoMorte(objMorto) {
+        const morto = objMorto || this.conteudoSala
+        let tremer = true
+        const x = morto.x
+        const y = morto.y
+
+
+        this.tweens.addCounter({
+            from: 0,
+            to: 100,
+            duration: 1000,
+            yoyo: true,
+            hold: 2000,
+            onUpdate: (tween) => {
+                const cor = Phaser.Display.Color.Interpolate.RGBWithRGB(255, 255, 255, 255, 0, 0, 100, tween.getValue())
+                morto.setTint(Phaser.Display.Color.GetColor(cor.r, cor.g, cor.b))
+                if (tremer) {
+                    morto.x = morto.x + Math.sin(tween.getValue()) * 2
+                    morto.y = morto.y + Math.cos(tween.getValue()) * 2
+                    if (tween.getValue() == 100) {
+                        tremer = false
+                        morto.x = x
+                        morto.y = y
+                    }
+                }
+            }
+        })
     }
 
     jogar() {
@@ -189,131 +233,61 @@ export default class Jogo extends Phaser.Scene {
             return;
         }
 
-        this.botao.removeAllListeners()
-
-        if (this.escolha == "tocha" && (this.masmorra != 4 || this.sala != 4)) {
+        if (this.escolha == "tocha" && !(this.salaAtual instanceof Chefe)) {
             this.masmorras[this.masmorra].forEach(m => m.escuro = false)
             this.jogs[0].cartas.splice(this.jogs[0].cartas.indexOf('tocha'), 1)
-            this.scene.start('Jogo', { jogs: this.jogs, masmorras: this.masmorras, sala: this.sala, masmorra: this.masmorra });
+            this.scene.restart()
             return;
         }
 
-        if ((this.escolha == "bola_de_cristal" || this.bolaDeCristal) && (this.masmorra != 4 || this.sala != 4)) {
-            this.jogs[0].ultima = this.escolha
+        this.botao.removeAllListeners()
+
+        if (!(this.salaAtual instanceof Chefe)) {
+            this.jogs[0].ultima = [this.escolha]
             this.jogs[0].cartas.splice(this.jogs[0].cartas.indexOf(this.escolha), 1)
 
             if (!this.bolaDeCristal) {
-                this.jogs.slice(1).forEach(jog => jog.jogar())
-
-                this.scene.start('Jogo', { jogs: this.jogs, masmorras: this.masmorras, sala: this.sala, masmorra: this.masmorra, bolaDeCristal: 1 });
-            } else {
-                this.cartaJogada[0].setTexture(this.jogs[0].ultima)
-
-                let res = this.masmorras[this.masmorra][this.sala].resolver(this.jogs)
-
-                this.resultadoTexto.setText(res[0])
-                this.tweens.add({ targets: this.resultadoTexto, alpha: 1, duration: 1000, yoyo: true, hold: 3000 })
-
-                this.tweens.add({ targets: this.cartaJogada, alpha: 0, duration: 1000, delay: 4000 })
-
-                if (res[2]) {
-                    this.tweens.addCounter({
-                        from: 0, to: 100, duration: 1000, yoyo: true, hold: 2000, onUpdate: (tween) => {
-                            let cor = Phaser.Display.Color.Interpolate.RGBWithRGB(255, 255, 255, 255, 0, 0, 100, tween.getValue())
-                            this.conteudoSala.setTint(Phaser.Display.Color.GetColor(cor.r, cor.g, cor.b))
-                        }
-                    })
-                }
-
-                for (let [i, j] of res[1].entries()) {
-                    if (String(j[0]).match(/[\+\-\/]\d+/))
-                        this.resultadoPersona[i].setText(j[0]).setColor(j[1])
-                    else
-                        this.resultadoAboboda[i].setTexture(j[0])
-                }
-                this.tweens.add({ targets: this.resultadoAboboda, alpha: 1, duration: 1000, yoyo: true, hold: 3000 });
-                this.tweens.add({ targets: this.resultadoPersona, alpha: 1, duration: 1000, yoyo: true, hold: 3000 })
-                    .on('complete', (tween, targets) => {
-                        this.sala++;
-
-                        if (this.sala == 5)
-                            this.scene.start('Porta', { jogs: this.jogs, masmorras: this.masmorras, sala: this.sala, masmorra: this.masmorra });
-                        else
-                            this.scene.start('Jogo', { jogs: this.jogs, masmorras: this.masmorras, sala: this.sala, masmorra: this.masmorra });
-                    }, this);
+                this.jogs.slice(1).forEach(jog => jog.jogar(this.salaAtual.constructor.name))
             }
-            return;
-        }
 
-        if (this.masmorra == 4 && this.sala == 4) {
+            if (this.escolha == "bola_de_cristal") {
+                this.scene.restart({ ...this, bolaDeCristal: true })
+                return
+            }
+
+            this.salaAtual.resolver(this)
+        } else {
             if (!Boolean(this.chefeEscolha)) {
                 this.jogs[0].ultima = [this.escolha, '0']
 
-                this.scene.start('Jogo', { jogs: this.jogs, masmorras: this.masmorras, sala: this.sala, masmorra: this.masmorra, chefeEscolha: [this.selecionado.x, this.selecionado.y], escolha: this.escolha });
+                this.scene.restart({...this, chefeEscolha: [this.selecionado.x, this.selecionado.y]});
                 return;
             } else {
                 this.jogs[0].ultima[1] = this.escolha
                 this.jogs[0].cartas.splice(this.jogs[0].cartas.indexOf(this.escolha), 1)
-                this.jogs.slice(1).forEach(jog => jog.chefe_jogar(this.masmorras[this.masmorra][this.sala].hab))
+                this.jogs.slice(1).forEach(jog => jog.jogar(this.salaAtual.constructor.name, 2))
 
-                var res = this.masmorras[this.masmorra][this.sala].resolver(this.jogs)
-
-                var cartasJogadas = this.jogs.map(j => j.ultima[0])
-                var cartasJogadas2 = this.jogs.map(j => j.ultima[1])
+                this.salaAtual.resolver(this)
             }
-        } else {
-            this.jogs[0].ultima = this.escolha
-            this.jogs[0].cartas.splice(this.jogs[0].cartas.indexOf(this.escolha), 1)
-            this.jogs.slice(1).forEach(jog => jog.jogar())
-
-            var res = this.masmorras[this.masmorra][this.sala].resolver(this.jogs)
-
-            var cartasJogadas = this.jogs.map(j => j.ultima)
-            var cartasJogadas2;
         }
 
-        this.resultadoTexto.setText(res[0])
-        this.tweens.add({ targets: this.resultadoTexto, alpha: 1, duration: 1000, yoyo: true, hold: 3000 })
+        for (let [i, jog] of this.jogs.entries()) {
+            if (jog.vida == 0)
+                this.animacaoMorte(this.jogInfo.getChildren()[i])
 
-        // chefe ou monstro derrotado
-        if (res[2]) {
-            this.tweens.addCounter({
-                from: 0,
-                to: 100,
+            this.cartaJogada[i].setTexture(jog.ultima[0])
+            if (jog.ultima.length == 2)
+                this.cartaJogada2[i].setTexture(jog.ultima[1])
+        }
+
+        this.tweens
+            .add({
+                targets: [this.resultadoTexto, ...this.cartaJogada, ...this.cartaJogada2, ...this.resultadoAboboda, ...this.resultadoPersona],
+                alpha: 1,
                 duration: 1000,
                 yoyo: true,
-                hold: 2000,
-                onUpdate: (tween) => {
-                    let cor = Phaser.Display.Color.Interpolate.RGBWithRGB(255, 255, 255, 255, 0, 0, 100, tween.getValue())
-                    this.conteudoSala.setTint(Phaser.Display.Color.GetColor(cor.r, cor.g, cor.b))
-                }
+                hold: 3000
             })
-        }
-
-        // cartas jogadas
-        for (let [i, c] of cartasJogadas.entries()) {
-            this.cartaJogada[i].setTexture(c)
-        }
-        this.tweens.add({ targets: this.cartaJogada, alpha: 1, duration: 1000, yoyo: true, hold: 3000 })
-
-        // segundas cartas jogadas
-        if (cartasJogadas2) {
-            for (let [i, c] of cartasJogadas2.entries()) {
-                this.cartaJogada2[i].setTexture(c)
-            }
-            this.tweens.add({ targets: this.cartaJogada2, alpha: 1, duration: 1000, yoyo: true, hold: 3000 })
-        }
-
-        // resultado
-        for (let [i, j] of res[1].entries()) {
-            if (String(j[0]).match(/[\+\-\/]\d+/))
-                this.resultadoPersona[i].setText(j[0]).setColor(j[1])
-            else
-                this.resultadoAboboda[i].setTexture(j[0])
-        }
-        
-        this.tweens.add({ targets: this.resultadoAboboda, alpha: 1, duration: 1000, yoyo: true, hold: 3000 });
-        this.tweens.add({ targets: this.resultadoPersona, alpha: 1, duration: 1000, yoyo: true, hold: 3000 })
             .on('complete', function (tween, targets) {
                 if (this.jogs[0].vida == 0) {
                     this.scene.start('Morte');

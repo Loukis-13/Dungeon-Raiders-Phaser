@@ -46,7 +46,6 @@ export default class Porta extends Phaser.Scene {
                 from: 10, to: 0, duration: 3000,
                 onUpdate: (t) => { musica.setVolume(.1 * t.getValue()) }
             }).on('complete', () => {
-                this.mute = this.sound.getAll()[0].config.mute
                 this.sound.removeAll()
             })
         })

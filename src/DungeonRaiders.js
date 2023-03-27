@@ -33,16 +33,16 @@ export function gerarMasmorra() {
 		new Monstro('Goblin',          {3: 11, 4: 14, 5: 18}, 2, 'goblin'),  // 2
 		new Monstro('Goblin',          {3: 11, 4: 14, 5: 18}, 2, 'goblin'),
 
-		new Tesouro(1, 0, 'tesouro0'),
-		new Tesouro(2, 0, 'tesouro1'),
-		new Tesouro(3, 0, 'tesouro2'),
-		new Tesouro(4, 0, 'tesouro3'),
-		new Tesouro(2, 1, 'tesouro4'),  // 2
-		new Tesouro(2, 1, 'tesouro4'),
-		new Tesouro(3, 2, 'tesouro5'),  // 2
-		new Tesouro(3, 2, 'tesouro5'),
-		new Tesouro(4, 2, 'tesouro6'),  // 2
-		new Tesouro(4, 2, 'tesouro6'),
+		new Tesouro([1],    'tesouro0'),
+		new Tesouro([2],    'tesouro1'),
+		new Tesouro([3],    'tesouro2'),
+		new Tesouro([4],    'tesouro3'),
+		new Tesouro([2, 1], 'tesouro4'),  // 2
+		new Tesouro([2, 1], 'tesouro4'),
+		new Tesouro([3, 2], 'tesouro5'),  // 2
+		new Tesouro([3, 2], 'tesouro5'),
+		new Tesouro([4, 2], 'tesouro6'),  // 2
+		new Tesouro([4, 2], 'tesouro6'),
 
 		new Armadilha('Armadilha de imã',     false,  true,  'armadilha0'),  // 2
 		new Armadilha('Armadilha de imã',     false,  true,  'armadilha0'),

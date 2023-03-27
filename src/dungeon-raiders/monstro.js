@@ -8,39 +8,52 @@ export class Monstro {
         this.imagem = imagem
         this.escuro = false
         this.morto = false
+        this.dictCartas = DICT_CARTAS
+        this.valCartas = []
     }
 
-    resolver(jogs) {
-        let danos = Array(jogs.length).fill(['', '#f00'])
+    resolver(game) {
+        const { jogs } = game
+        let resultado = ''
 
         // dois jogadores
         if (jogs.length == 2) {
-            const [j1, j2] = jogs.map(j => DICT_CARTAS[j.ultima]).reduce((acc, x) => acc + x)
+            const [j1, j2] = jogs.map(j => j.ultima.map(i => this.dictCartas[i]).reduce((acc, x) => acc + x))
 
-            if (j1 == j2)
-                return ['? ? ?', danos, this.morto]
-
-            i = j1 > j2
-            jogs[i].vida += this.dano
-            danos[i] = [String(-this.dano), '#f00']
-            return ['', danos, this.morto]
-        }
-
-        let valCartas = jogs.map(j => DICT_CARTAS[j.ultima]).sort((a, b) => a - b)
-
-        const danoTotal = valCartas.reduce((acc, x) => acc + x)
-
-        if (danoTotal >= this.vida[jogs.length]) {
-            this.morto = true
+            if (j1 == j2) {
+                resultado = '? ? ?'
+            } else {
+                const i = j1 > j2
+                this.atacar(jogs[i])
+                game.resultadoPersona[i].setText(`-${this.dano}`).setColor('#f00')
+            }
         } else {
-            for (let [i, jog] of jogs.entries()) {
-                if (DICT_CARTAS[jog.ultima] == valCartas[0]) {
-                    jog.vida -= this.dano
-                    danos[i] = [String(-this.dano), '#f00']
+            this.valCartas = jogs
+                .flatMap(j => j.ultima.map(i => this.dictCartas[i]))
+                .filter(i => i)
+                .sort((a, b) => a - b);
+            const danoTotal = this.valCartas.reduce((acc, x) => acc + x)
+            resultado = String(danoTotal)
+
+            if (danoTotal >= this.vida[jogs.length]) {
+                this.morto = true
+                game.animacaoMorte()
+            } else {
+                for (let [i, jog] of jogs.entries()) {
+                    if (this.atacar(jog)) {
+                        game.resultadoPersona[i].setText(`-${this.dano}`).setColor('#f00')
+                    }
                 }
             }
         }
 
-        return [String(danoTotal), danos, this.morto]
+        game.resultadoTexto.setText(resultado)
+    }
+
+    atacar(jog) {
+        if (jog.ultima.map(j => this.dictCartas[j]).includes(this.valCartas[0])) {
+            jog.vida -= this.dano
+            return true
+        }
     }
 }

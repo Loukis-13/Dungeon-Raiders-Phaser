@@ -1,41 +1,29 @@
 import { DICT_CARTAS } from "./utils.js"
 
 export class Tesouro {
-    constructor(bau1, bau2, imagem) {
-        this.bau1 = bau1
-        this.bau2 = bau2
+    constructor(baus, imagem) {
+        this.baus = baus
         this.imagem = imagem
         this.escuro = false
     }
 
-    resolver(jogs) {
-        let din = Array(jogs.length).fill(['', '#ff0'])
-        let valCartas = jogs.map(j => DICT_CARTAS[j.ultima]).sort((a, b) => a - b)
-        let max = Math.max(...valCartas)
+    resolver(game) {
+        const { jogs } = game
 
-        let x = Math.floor(this.bau1 / valCartas.filter(i => i == max).length)
-        for (let [i, jog] of jogs.entries()) {
-            if (DICT_CARTAS[jog.ultima] == max) {
-                jog.moedas += x
-                din[i] = [`+${x}`, '#ff0']
-            }
-        }
+        let valCartas = jogs.map(j => DICT_CARTAS[j.ultima[0]])
+        let max = -1
 
-        if (this.bau2) {
-            valCartas = valCartas.filter(i => i != max)
+        for (const bau of this.baus) {
+            valCartas = valCartas.map(i => i != max ? i : 0)
             max = Math.max(...valCartas)
 
-            if (valCartas.length > 0) {
-                x = Math.floor(this.bau2 / valCartas.filter(i => i == max).length)
-                for (let [i, jog] of jogs.entries()) {
-                    if (DICT_CARTAS[jog.ultima] == max) {
-                        jog.moedas += x
-                        din[i] = [`+${x}`, '#ff0']
-                    }
+            const x = Math.floor(bau / valCartas.filter(i => i == max).length)
+            for (const [i, jog] of jogs.entries()) {
+                if (valCartas[i] == max) {
+                    jog.moedas += x
+                    game.resultadoPersona[i].setText(`+${x}`).setColor('#ff0')
                 }
             }
         }
-
-        return ['', din, false]
     }
 }

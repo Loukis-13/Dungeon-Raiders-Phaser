@@ -26,14 +26,13 @@ export default class Menu extends Phaser.Scene {
 
         new Botao(this, sw / 1.15, sh / 1.1, 'Regras', style, 'Regras')
 
-        let musica = this.sound.get('menu')
-        this.add.image(sw - 5, 5, musica.mute ? 'mudo' : 'som')
+        let som = this.add.image(sw - 5, 5, this.sound.mute ? 'mudo' : 'som')
             .setOrigin(1, 0)
             .setScale(.5)
             .setInteractive({ useHandCursor: true })
-            .on('pointerdown', () => {
-                musica.setMute(!musica.mute)
-                som.setTexture(musica.mute ? 'mudo' : 'som')
-            });
+        som.on('pointerdown', () => {
+            this.sound.mute = !this.sound.mute
+            som.setTexture(this.sound.mute ? 'mudo' : 'som')
+        });
     }
 }
