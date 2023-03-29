@@ -7,10 +7,9 @@ export default class Escolha extends Phaser.Scene {
 
     init() {
         if (!this.sound.get('menu')) {
-            let mute = this.sound.getAll()[0].config.mute
             this.sound.removeAll()
             this.sound.play('menu')
-            this.sound.get('menu').setLoop(true).setMute(mute)
+            this.sound.get('menu').setLoop(true)
         }
     }
 

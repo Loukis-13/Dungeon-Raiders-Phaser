@@ -1,3 +1,6 @@
+import { Chefe, Golem, Hidra, Megadragao, Necromante } from "../dungeon-raiders/chefes.js";
+import { Monstro } from "../dungeon-raiders/monstro.js";
+import { Tesouro } from "../dungeon-raiders/tesouro.js";
 import Botao from "../objects/Botao.js";
 
 export default class Jogo extends Phaser.Scene {
@@ -11,27 +14,32 @@ export default class Jogo extends Phaser.Scene {
 
         this.masmorra = data.masmorra;
         this.sala = data.sala;
+        this.salaAtual = this.masmorras[this.masmorra][this.sala]
 
         this.escolha = data.escolha;
-        this.chefeEscolha = data.chefeEscolha;
 
         this.bolaDeCristal = data.bolaDeCristal
+        this.hidra = data.hidra
 
-        let musica = 'jogo'+(this.masmorra+1);
+        this.cartasJogador = { cartas: [], escolha: null, primeira: true }
+
+        this.jogs.forEach(j => j.ultima = [])
+
+        const musica = `jogo${this.masmorra + 1}`;
         if (!this.sound.get(musica)) {
             this.sound.play(musica)
-            this.sound.get(musica).setLoop(true).setMute(data.mute)
+            this.sound.get(musica).setLoop(true)
         }
     }
 
     create() {
         this.sw = this.cameras.main.width;
         this.sh = this.cameras.main.height;
-        this.style = {font: "32px Pirata_One"};
-        let aviso_style = {font: "55px Pirata_One", stroke: '#000', strokeThickness: 2}
+        this.style = { font: "32px Pirata_One" };
+        let aviso_style = { font: "55px Pirata_One", stroke: '#000', strokeThickness: 2 }
 
         // plano de fundo
-        let image = this.add.image(this.sw/2, this.sh/2, 'fundo');
+        let image = this.add.image(this.sw / 2, this.sh / 2, 'fundo');
         image.displayWidth = this.sw;
         image.displayHeight = this.sh;
 
@@ -39,302 +47,289 @@ export default class Jogo extends Phaser.Scene {
         new Botao(this, 100, 35, 'Menu', this.style, 'Escolha', 200, 60)
 
         // conteudo da sala
-        this.masmorras[this.masmorra][this.sala].escuro = false
-        this.conteudoSala = this.add.image(this.sw/2, this.sh/2.2, this.masmorras[this.masmorra][this.sala].imagem)
-        this.conteudoSala.setScale(this.sh/this.conteudoSala.height/2)
+        this.salaAtual.escuro = false
+        this.conteudoSala = this.add.image(this.sw / 2, this.sh / 2.2, this.salaAtual.imagem)
+        this.conteudoSala.setScale(this.sh / this.conteudoSala.height / 2)
 
         // total de dano
-        this.resultadoTexto = this.add.text(this.sw/2, 100, '', aviso_style).setOrigin(.5).setAlpha(0);
+        this.resultadoTexto = this.add.text(this.sw / 2, 100, '', aviso_style).setOrigin(.5).setAlpha(0);
 
         // informações dos jogadores
         this.infoJogs()
 
         // cartas do jogador 1
-        this.cartasJogador()
+        this.mostrarCartasJogador()
 
         // mapa da masmorra
         this.mapa()
-        
+
         // aviso caso nenhuma carta seja escolhida
-        this.no_e = this.add.text(this.sw/2, this.sh/3.3, 'Escolhe uma carta', aviso_style).setOrigin(.5).setAlpha(0);
+        this.no_e = this.add.text(this.sw / 2, this.sh / 3.3, 'Escolhe uma carta', aviso_style).setOrigin(.5).setAlpha(0);
 
         // botao para jogar a carta escolhida
-        this.botao = this.add.image(this.sw/8*7, this.sh/6*4, 'botao')
-            .setInteractive({useHandCursor: true})
-            .on('pointerdown', ()=>this.jogar());
+        this.botao = this.add.image(this.sw / 8 * 7, this.sh / 6 * 4, 'botao')
+            .setInteractive({ useHandCursor: true })
+            .on('pointerdown', () => this.jogar());
         this.add.text(this.botao.x, this.botao.y, 'Jogar', this.style).setOrigin(.5);
 
         // logica da bola de cristal
-        if (this.jogs[0].ultima == "bola_de_cristal") {
+        if (this.jogs[0].ultima[0] == "bola_de_cristal") {
             for (let [i, j] of this.jogs.entries()) {
                 this.cartaJogada[i].setTexture(j.ultima)
             }
 
-            this.tweens.add({targets: this.cartaJogada, alpha: 1, duration:1000})
+            this.tweens.add({ targets: this.cartaJogada, alpha: 1, duration: 1000 })
         }
 
-        // logica do chefe
-        if (this.chefeEscolha) {
-            this.no_e.setText("Escolhe outra carta\nou clica em 'Jogar'") 
-            this.tweens.add({targets: this.no_e, alpha: 1, duration:1000, yoyo:true, hold: 2000})
-        }
+        if (this.jogs[0].cartas.length == 0)
+            this.jogar()
     }
 
     infoJogs() {
+        this.jogInfo = this.add.group()
         this.cartaJogada = []
         this.cartaJogada2 = []
         this.resultadoPersona = []
         this.resultadoAboboda = []
 
-        let x = this.chefeEscolha ? 230 : 180
+        let x = this.salaAtual instanceof Chefe ? 230 : 180
         let h = 120
         for (let jog of this.jogs) {
             let per = this.add.image(105, h, jog.imagem).setScale(.70)
-            this.add.text(per.x+16, per.y, jog.vida, {font: "28px Pirata_One"}).setOrigin(.5)
-            this.add.text(per.x+64, per.y, jog.moedas, {font: "28px Pirata_One"}).setOrigin(.5)
+            this.jogInfo.add(per)
+            this.add.text(per.x + 16, per.y, jog.vida, { font: "28px Pirata_One" }).setOrigin(.5)
+            this.add.text(per.x + 64, per.y, jog.moedas, { font: "28px Pirata_One" }).setOrigin(.5)
 
-            this.cartaJogada.push(this.add.image(per.x+130, per.y, '0').setScale(.2).setAlpha(0))
-            this.cartaJogada2.push(this.add.image(per.x+180, per.y, '0').setScale(.2).setAlpha(0))
-            this.resultadoPersona.push(this.add.text(per.x+x, per.y, '', this.style).setOrigin(.5).setAlpha(0))
-            this.resultadoAboboda.push(this.add.image(per.x+x, per.y, '0').setScale(.2).setAlpha(0))
+            this.cartaJogada.push(this.add.image(per.x + 130, per.y, '0').setScale(.2).setAlpha(0))
+            this.cartaJogada2.push(this.add.image(per.x + 180, per.y, '0').setScale(.2).setAlpha(0))
+            this.resultadoPersona.push(this.add.text(per.x + x, per.y, '', this.style).setOrigin(.5).setAlpha(0))
+            this.resultadoAboboda.push(this.add.image(per.x + x, per.y, '0').setScale(.2).setAlpha(0))
 
             h += 95
         }
     }
 
-    cartasJogador() {
+    mostrarCartasJogador() {
         this.selecionado = this.add.image(-500, -500, 'selecionado').setScale(.36).setOrigin(.5, 1).setDepth(1)
+        this.cartasJogador.cartas.push(this.selecionado)
 
-        let w = this.sw/4
+        let w = this.sw / 4
         for (let carta of this.jogs[0].cartas) {
-            let cartaImg = this.add.image(w, this.sh, carta).setOrigin(.5, 1).setScale(.6)
+            const cartaImg = this.add.image(w, this.sh, carta).setOrigin(.5, 1).setScale(.6)
+            this.cartasJogador.cartas.push(cartaImg)
 
-            let sala = this.masmorras[this.masmorra][this.sala]
+            const sala = this.salaAtual
             if (
-                ((carta == 'chave') && (sala.tipo != 'Tesouro') && (sala.tipo != 'Chefe')) ||
-                ((carta == 'espada') && (((sala.tipo != 'Monstro') && (sala.tipo != 'Chefe')) || (sala.hab ? sala.hab : []).includes(3))) ||
-                ((carta == 'bola_de_cristal') && (sala.hab ? sala.hab : []).includes(7))
+                ((carta == 'chave') && !(sala instanceof Tesouro) && !(sala instanceof Chefe)) ||
+                ((carta == 'espada') && ((!(sala instanceof Monstro) && !(sala instanceof Chefe)) || (sala instanceof Golem))) ||
+                ((carta == 'bola_de_cristal') && (sala instanceof Necromante))
             ) {
                 this.plugins.get('rexgrayscalepipelineplugin').add(cartaImg);
-            } else if (this.escolha == carta && this.chefeEscolha) {
-                this.add.image(0, 0, 'selecionado').setScale(.36).setOrigin(.5, 1).setPosition(...this.chefeEscolha).setDepth(1);
-                this.escolha = "";
-            }
-            else {
-                cartaImg.setInteractive({useHandCursor: true})
-                cartaImg.on('pointerdown', ()=>{
+            } else {
+                cartaImg.setInteractive({ useHandCursor: true })
+                cartaImg.on('pointerdown', () => {
                     this.escolha = carta
-
+                    this.cartasJogador.escolha = cartaImg
                     this.selecionado.setPosition(cartaImg.x, cartaImg.y)
                 });
             }
 
-            w += cartaImg.width/1.7
-        }
-
-        if (Boolean(this.chefeEscolha)) {
-
+            w += cartaImg.width / 1.7
         }
     }
 
     mapa() {
-        let w = this.sw/4*3 +6
+        let w = this.sw / 4 * 3 + 6
         for (let sala of this.masmorras[this.masmorra]) {
-            let s;
-            if (sala.escuro && (sala.tipo == 'Chefe'))
-                s = this.add.image(w, 0, 'chefe').setOrigin(1, 0).setScale(.25)
-            else if (sala.escuro)
-                s = this.add.image(w, 0, 'vazio').setOrigin(1, 0).setScale(.25)
-            else
-                s = this.add.image(w, 0, sala.imagem).setOrigin(1, 0).setScale(.25)
-            w += s.width * .25 -2
+            let carta;
 
-            s.setInteractive({useHandCursor: true}).on('pointerup', this.mapaPopup, this)
+            if (sala.escuro && sala instanceof Chefe)
+                carta = 'chefe'
+            else if (sala.escuro)
+                carta = 'vazio'
+            else
+                carta = sala.imagem
+
+            let img = this.add.image(w, 0, carta)
+                .setOrigin(1, 0)
+                .setScale(.25)
+                .setInteractive({ useHandCursor: true })
+                .on('pointerup', this.mapaPopup, this)
+
+            if (sala == this.salaAtual) {
+                this.add.image(w, 0, 'selecionado')
+                    .setOrigin(1, 0)
+                    .setScale(.25)
+                    .setInteractive({ useHandCursor: true })
+                    .on('pointerup', this.mapaPopup, this)
+            }
+
+            w += img.width * .25 - 2
         }
     }
 
     mapaPopup() {
         let popup = this.add.group()
-
-        popup.add(
-            this.add.graphics()
-                .fillStyle(0x222222, 0.8)
-                .fillRect(0, 0, 1280, 720)
-        )
-
-        popup.add(this.add.text(this.sw/2, 120, "Masmorra "+this.masmorra, this.style).setOrigin(.5))
+            .add(this.add.graphics().fillStyle(0x222222, 0.8).fillRect(0, 0, 1280, 720))
+            .add(this.add.text(this.sw / 2, 120, `Masmorra ${this.masmorra + 1}`, this.style).setOrigin(.5))
 
         let w = 170
         for (let sala of this.masmorras[this.masmorra]) {
-            let s;
-            if (sala.escuro && (sala.tipo == 'Chefe'))
-                s = this.add.image(w, this.sh/2, 'chefe').setScale(.7)
+            let carta;
+            if (sala.escuro && sala instanceof Chefe)
+                carta = 'chefe'
             else if (sala.escuro)
-                s = this.add.image(w, this.sh/2, 'vazio').setScale(.7)
+                carta = 'vazio'
             else
-                s = this.add.image(w, this.sh/2, sala.imagem).setScale(.7)
-            w += s.width*.7 + 10
+                carta = sala.imagem
 
-            popup.add(s)
+            const img = this.add.image(w, this.sh / 2, carta).setScale(.7)
+            popup.add(img)
+
+            if (sala == this.salaAtual) {
+                popup.add(this.add.image(w, this.sh / 2, 'selecionado').setScale(.7))
+            }
+
+            w += img.width * .7 + 10
         }
 
-        popup.children.each((c)=>c.setDepth(1))
+        popup.children.each(c => c.setDepth(1))
 
-        this.input.once('pointerdown', ()=>{
-            popup.children.each((child)=>child.destroy())
+        this.input.once('pointerdown', () => popup.children.each((child) => child.destroy()))
+    }
+
+    animacaoMorte(objMorto) {
+        const morto = objMorto || this.conteudoSala
+        let tremer = true
+        const x = morto.x
+        const y = morto.y
+
+
+        this.tweens.addCounter({
+            from: 0,
+            to: 100,
+            duration: 1000,
+            yoyo: true,
+            hold: 2000,
+            onUpdate: (tween) => {
+                const cor = Phaser.Display.Color.Interpolate.RGBWithRGB(255, 255, 255, 255, 0, 0, 100, tween.getValue())
+                morto.setTint(Phaser.Display.Color.GetColor(cor.r, cor.g, cor.b))
+                if (tremer) {
+                    morto.x = morto.x + Math.sin(tween.getValue()) * 2
+                    morto.y = morto.y + Math.cos(tween.getValue()) * 2
+                    if (tween.getValue() == 100) {
+                        tremer = false
+                        morto.x = x
+                        morto.y = y
+                    }
+                }
+            }
         })
     }
 
     jogar() {
-        if (!this.escolha && !this.chefeEscolha) {
-            this.tweens.add({targets: this.no_e, alpha: 1, duration:1000, yoyo:true, hold: 1000})
+        if (!this.escolha && this.cartasJogador.primeira && this.jogs[0].cartas.length > 0) {
+            this.tweens.add({ targets: this.no_e, alpha: 1, duration: 1000, yoyo: true, hold: 1000 })
             return;
         }
 
-        this.botao.removeAllListeners()
-        
-        if (this.escolha == "tocha" && (this.masmorra != 4 || this.sala != 4)) {
-            this.masmorras[this.masmorra].forEach(m=>m.escuro=false)
+        if (this.escolha == "tocha" && !(this.salaAtual instanceof Chefe)) {
+            this.masmorras[this.masmorra].forEach(m => m.escuro = false)
             this.jogs[0].cartas.splice(this.jogs[0].cartas.indexOf('tocha'), 1)
-            this.scene.start('Jogo', {jogs: this.jogs, masmorras: this.masmorras, sala: this.sala, masmorra: this.masmorra});
+            this.scene.restart()
             return;
-        } 
+        }
 
-        if ((this.escolha == "bola_de_cristal" || this.bolaDeCristal) && (this.masmorra != 4 || this.sala != 4)) {
-            this.jogs[0].ultima = this.escolha
+        if (!(this.salaAtual instanceof Chefe)) {
+            this.jogs[0].ultima = [this.escolha || "0"]
             this.jogs[0].cartas.splice(this.jogs[0].cartas.indexOf(this.escolha), 1)
 
             if (!this.bolaDeCristal) {
-                this.jogs.slice(1).forEach(jog=>jog.jogar())
-
-                this.scene.start('Jogo', {jogs: this.jogs, masmorras: this.masmorras, sala: this.sala, masmorra: this.masmorra, bolaDeCristal: 1});
+                this.jogs.slice(1).forEach(jog => jog.jogar(this.salaAtual.constructor.name))
             }
-            else {
-                this.cartaJogada[0].setTexture(this.jogs[0].ultima)
 
-                let res = this.masmorras[this.masmorra][this.sala].resolver(this.jogs)
-
-                this.resultadoTexto.setText(res[0])
-                this.tweens.add({targets: this.resultadoTexto, alpha: 1, duration:1000, yoyo:true, hold: 3000})
-
-                this.tweens.add({targets: this.cartaJogada, alpha: 0, duration:1000, delay: 4000})
-
-                if (res[2]) {
-                    this.tweens.addCounter({from: 0, to: 100, duration:1000, yoyo:true, hold: 2000, onUpdate: (tween)=>{
-                            let cor = Phaser.Display.Color.Interpolate.RGBWithRGB(255,255,255, 255,0,0, 100, tween.getValue())
-                            this.conteudoSala.setTint(Phaser.Display.Color.GetColor(cor.r, cor.g, cor.b))
-                        }
-                    })
-                }
-                
-                for (let [i, j] of res[1].entries()) {
-                    if (String(j[0]).match(/[\+\-\/]\d+/))
-                        this.resultadoPersona[i].setText(j[0]).setColor(j[1])
-                    else
-                        this.resultadoAboboda[i].setTexture(j[0])
-                }
-                this.tweens.add({targets: this.resultadoAboboda, alpha: 1, duration:1000, yoyo:true, hold: 3000});
-                this.tweens.add({targets: this.resultadoPersona, alpha: 1, duration:1000, yoyo:true, hold: 3000})
-                    .on('complete', function(tween, targets){
-                        this.sala++;
-    
-                        if (this.sala == 5) 
-                            this.scene.start('Porta', {jogs: this.jogs, masmorras: this.masmorras, sala: this.sala, masmorra: this.masmorra});
-                        else
-                            this.scene.start('Jogo', {jogs: this.jogs, masmorras: this.masmorras, sala: this.sala, masmorra: this.masmorra});
-                    }, this);
+            if (this.escolha == "bola_de_cristal") {
+                this.scene.restart({ ...this, bolaDeCristal: true })
+                return
             }
-            return;
-        }
-
-        if (this.masmorra == 4 && this.sala == 4) {
-            if (!Boolean(this.chefeEscolha)) {
+        } else {
+            if (this.cartasJogador.primeira && this.jogs[0].cartas.length > 0) {
                 this.jogs[0].ultima = [this.escolha, '0']
+                this.jogs[0].cartas.splice(this.jogs[0].cartas.indexOf(this.escolha), 1)
+                this.escolha = ''
 
-                this.scene.start('Jogo', {jogs: this.jogs, masmorras: this.masmorras, sala: this.sala, masmorra: this.masmorra, chefeEscolha: [this.selecionado.x, this.selecionado.y], escolha: this.escolha});
+                const selec = this.cartasJogador.cartas[0]
+                this.cartasJogador.cartas.push(
+                    this.add.image(selec.x, selec.y, 'selecionado').setScale(.36).setOrigin(.5, 1).setDepth(1)
+                )
+                selec.y = -500
+                this.cartasJogador.escolha.disableInteractive().removeAllListeners()
+                this.cartasJogador.primeira = false
+
+                this.no_e.setText("Escolhe outra carta\nou clica em 'Jogar'")
+                this.tweens.add({ targets: this.no_e, alpha: 1, duration: 1000, yoyo: true, hold: 2000 })
+
                 return;
             }
-            else {
+
+            if (this.escolha) {
                 this.jogs[0].ultima[1] = this.escolha
                 this.jogs[0].cartas.splice(this.jogs[0].cartas.indexOf(this.escolha), 1)
-                this.jogs.slice(1).forEach(jog=>jog.chefe_jogar(this.masmorras[this.masmorra][this.sala].hab))
-
-                var res = this.masmorras[this.masmorra][this.sala].resolver(this.jogs)
-
-                var cartasJogadas = this.jogs.map(j=>j.ultima[0])
-                var cartasJogadas2 = this.jogs.map(j=>j.ultima[1])
             }
-        }
-        else {
-            this.jogs[0].ultima = this.escolha
-            this.jogs[0].cartas.splice(this.jogs[0].cartas.indexOf(this.escolha), 1)
-            this.jogs.slice(1).forEach(jog=>jog.jogar())
 
-            var res = this.masmorras[this.masmorra][this.sala].resolver(this.jogs)
-
-            var cartasJogadas = this.jogs.map(j=>j.ultima)
-            var cartasJogadas2;
+            this.jogs.slice(1).forEach(jog => jog.jogar(this.salaAtual.constructor.name, 2))
         }
 
-        this.resultadoTexto.setText(res[0])
-        this.tweens.add({targets: this.resultadoTexto, alpha: 1, duration:1000, yoyo:true, hold: 3000})
+        this.salaAtual.resolver(this)
 
-        if (res[2]) {
-            this.tweens.addCounter({
-                from: 0,
-                to: 100,
-                duration:1000, 
-                yoyo:true, 
-                hold: 2000,
-                onUpdate: (tween)=>{
-                    let cor = Phaser.Display.Color.Interpolate.RGBWithRGB(255,255,255, 255,0,0, 100, tween.getValue())
-                    this.conteudoSala.setTint(Phaser.Display.Color.GetColor(cor.r, cor.g, cor.b))
-                }
+        this.botao.disableInteractive().removeAllListeners()
+        this.cartasJogador.cartas.forEach(i => i.disableInteractive())
+
+        for (let [i, jog] of this.jogs.entries()) {
+            if (jog.vida == 0)
+                this.animacaoMorte(this.jogInfo.getChildren()[i])
+
+            this.cartaJogada[i].setTexture(jog.ultima[0])
+            if (jog.ultima.length == 2)
+                this.cartaJogada2[i].setTexture(jog.ultima[1])
+        }
+
+        this.tweens
+            .add({
+                targets: [this.resultadoTexto, ...this.cartaJogada, ...this.cartaJogada2, ...this.resultadoAboboda, ...this.resultadoPersona],
+                alpha: 1,
+                duration: 1000,
+                yoyo: true,
+                hold: 3000
             })
-        }
-
-        // cartas jogadas
-        for (let [i, c] of cartasJogadas.entries()) {
-            this.cartaJogada[i].setTexture(c)
-        }
-        this.tweens.add({targets: this.cartaJogada, alpha: 1, duration:1000, yoyo:true, hold: 3000})
-
-        // segundas cartas jogadas
-        if (cartasJogadas2) {
-            for (let [i, c] of cartasJogadas2.entries()) {
-                this.cartaJogada2[i].setTexture(c)
-            }
-            this.tweens.add({targets: this.cartaJogada2, alpha: 1, duration:1000, yoyo:true, hold: 3000})
-        }
-        
-        // resultado
-        for (let [i, j] of res[1].entries()) {
-            if (String(j[0]).match(/[\+\-\/]\d+/))
-                this.resultadoPersona[i].setText(j[0]).setColor(j[1])
-            else
-                this.resultadoAboboda[i].setTexture(j[0])
-        }
-        this.tweens.add({targets: this.resultadoAboboda, alpha: 1, duration:1000, yoyo:true, hold: 3000});
-        this.tweens.add({targets: this.resultadoPersona, alpha: 1, duration:1000, yoyo:true, hold: 3000})
-            .on('complete', function(tween, targets){
+            .on('complete', function (tween, targets) {
                 if (this.jogs[0].vida == 0) {
                     this.scene.start('Morte');
                     return;
                 }
 
-                this.jogs = this.jogs.filter(jog=>jog.vida>0)
+                this.jogs = this.jogs.filter(jog => jog.vida > 0)
+
+                if (this.salaAtual instanceof Megadragao && this.salaAtual.morto) {
+                    this.masmorras[this.masmorra][this.sala] = new Tesouro([3], 'tesouro2')
+                    this.scene.restart()
+                    return
+                }
+
+                if (this.salaAtual instanceof Hidra && !this.hidra) {
+                    this.scene.restart({ ...this, hidra: true })
+                    return
+                }
 
                 this.sala++;
-                if (this.sala == 5) {this.masmorra++;}
+                if (this.sala == 5) this.masmorra++;
 
                 if (this.masmorra == 5 || this.jogs.length == 1) {
-                    this.scene.start('FimDeJogo', {jogs: this.jogs});
-                }
-                else if (this.sala == 5) {
-                    this.scene.start('Porta', {jogs: this.jogs, masmorras: this.masmorras, masmorra: this.masmorra});
-                }
-                else {
-                    this.scene.start('Jogo', {jogs: this.jogs, masmorras: this.masmorras, sala: this.sala, masmorra: this.masmorra});
+                    this.scene.start('FimDeJogo', { jogs: this.jogs });
+                } else if (this.sala == 5) {
+                    this.scene.start('Porta', { jogs: this.jogs, masmorras: this.masmorras, masmorra: this.masmorra });
+                } else {
+                    this.scene.start('Jogo', { jogs: this.jogs, masmorras: this.masmorras, masmorra: this.masmorra, sala: this.sala });
                 }
             }, this);
     }

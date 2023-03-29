@@ -7,10 +7,9 @@ export default class Morte extends Phaser.Scene {
 
     init() {
         if (!this.sound.get('morte')) {
-            let mute = this.sound.getAll()[0].config.mute
             this.sound.removeAll()
             this.sound.play('morte')
-            this.sound.get('morte').setLoop(true).setMute(mute)
+            this.sound.get('morte').setLoop(true)
         }
     }
 
@@ -18,12 +17,12 @@ export default class Morte extends Phaser.Scene {
         let sw = this.cameras.main.width;
         let sh = this.cameras.main.height;
 
-        let image = this.add.image(sw/2, sh/2, 'fundo');
+        let image = this.add.image(sw / 2, sh / 2, 'fundo');
         image.displayWidth = sw;
         image.displayHeight = sh;
 
-        this.add.text(sw/2, sh/3, "MORRESTE", {font: "150px Pirata_One", stroke: '#000', strokeThickness: 2}).setOrigin(.5)
+        this.add.text(sw / 2, sh / 3, "MORRESTE", { font: "150px Pirata_One", stroke: '#000', strokeThickness: 2 }).setOrigin(.5)
 
-        new Botao(this, sw/2, sh/3*2, 'Jogar Novamente', {font: "32px Pirata_One"}, 'Escolha')
+        new Botao(this, sw / 2, sh / 3 * 2, 'Jogar Novamente', { font: "32px Pirata_One" }, 'Escolha')
     }
 }
