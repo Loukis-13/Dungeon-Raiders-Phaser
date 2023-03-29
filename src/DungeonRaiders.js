@@ -52,7 +52,7 @@ export function gerarMasmorra() {
 	]
 
 	const chefes = [ColetorDeImpostos, Esfinge, Golem, Hidra, MatilhaDeLobos, Medusa, Megadragao, Minotauro, Mumia, Necromante, Vampiro]
-	let chefe = chefes[Math.floor(Math.random() * chefes.length)]
+	const chefe = chefes[Math.floor(Math.random() * chefes.length)]
 
 	// gerar masmorra
 	shuffle(salas)

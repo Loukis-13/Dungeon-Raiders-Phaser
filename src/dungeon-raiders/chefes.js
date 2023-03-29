@@ -1,3 +1,4 @@
+import { Monstro } from "./monstro.js"
 import { DICT_CARTAS } from "./utils.js"
 
 export class Chefe extends Monstro {
@@ -13,21 +14,20 @@ export class MatilhaDeLobos extends Chefe {
     }
 
     atacar(jog) {
-        if (!jog.ultima.includes('tocha') && jog.ultima.map(j => this.dictCartas[j]).includes(this.valCartas[0])) {
+        if (!jog.ultima.includes('tocha') && jog.total(this.dictCartas) == this.valCartas[0]) {
             jog.vida -= this.dano
             return true
         }
     }
 }
 
-// TODO: implementar habilidade de baú do Megadragão
 export class Megadragao extends Chefe {
     constructor() {
         super('Megadragão', { 3: 16, 4: 23, 5: 29 }, 4, 'megadragao')
     }
 
     atacar(jog) {
-        if (jog.ultima.map(j => this.dictCartas[j]).includes(this.valCartas[0])) {
+        if (jog.total(this.dictCartas) == this.valCartas[0]) {
             jog.vida -= this.dano
             return true
         }
@@ -40,7 +40,7 @@ export class Medusa extends Chefe {
     }
 
     atacar(jog) {
-        if (jog.ultima.map(j => this.dictCartas[j]).includes(this.valCartas[0])) {
+        if (jog.total(this.dictCartas) == this.valCartas[0]) {
             jog.vida -= this.dano
             return true
         }
@@ -53,7 +53,7 @@ export class Minotauro extends Chefe {
     }
 
     atacar(jog) {
-        if (jog.ultima.map(j => this.dictCartas[j]).includes(this.valCartas[this.valCartas.length - 1])) {
+        if (jog.total(this.dictCartas) == this.valCartas[this.valCartas.length - 1]) {
             jog.vida -= this.dano
             return true
         }
@@ -66,7 +66,7 @@ export class ColetorDeImpostos extends Chefe {
     }
 
     atacar(jog) {
-        if (jog.ultima.map(j => this.dictCartas[j]).includes(this.valCartas[0])) {
+        if (jog.total(this.dictCartas) == this.valCartas[0]) {
             jog.vida -= this.dano
             jog.moedas -= this.valCartas[this.valCartas.length - 1]
             return true
@@ -80,7 +80,7 @@ export class Golem extends Chefe {
     }
 
     atacar(jog) {
-        if (jog.ultima.map(j => this.dictCartas[j]).includes(this.valCartas[0])) {
+        if (jog.total(this.dictCartas) == this.valCartas[0]) {
             this.dano = this.valCartas[this.valCartas.length - 1]
             jog.vida -= this.dano
             return true
@@ -94,9 +94,10 @@ export class Necromante extends Chefe {
     }
 
     atacar(jog) {
+        const jogTotal = jog.total(this.dictCartas)
         if (
-            jog.ultima.map(j => this.dictCartas[j]).includes(this.valCartas[0]) ||
-            jog.ultima.map(j => this.dictCartas[j]).includes(this.valCartas.filter(x => x != this.valCartas[0])[0])
+            jogTotal == this.valCartas[0] ||
+            jogTotal == this.valCartas.filter(x => x != this.valCartas[0])[0]
         ) {
             jog.vida -= this.dano
             return true
@@ -110,9 +111,10 @@ export class Vampiro extends Chefe {
     }
 
     atacar(jog) {
+        const jogTotal = jog.total(this.dictCartas)
         if (
-            jog.ultima.map(j => this.dictCartas[j]).includes(this.valCartas[0]) ||
-            jog.ultima.map(j => this.dictCartas[j]).includes(this.valCartas.filter(x => x != this.valCartas[0])[0])
+            jogTotal == this.valCartas[0] ||
+            jogTotal == this.valCartas.filter(x => x != this.valCartas[0])[0]
         ) {
             jog.vida -= this.dano
             return true
@@ -126,7 +128,7 @@ export class Esfinge extends Chefe {
     }
 
     atacar(jog) {
-        if (jog.ultima.map(j => this.dictCartas[j]).includes(this.valCartas[0])) {
+        if (jog.total(this.dictCartas) == this.valCartas[0]) {
             jog.vida -= this.dano
             return true
         }
@@ -139,21 +141,20 @@ export class Mumia extends Chefe {
     }
 
     atacar(jog) {
-        if (jog.ultima.map(j => this.dictCartas[j]).includes(this.valCartas[0])) {
+        if (jog.total(this.dictCartas) == this.valCartas[0]) {
             jog.vida -= this.dano
             return true
         }
     }
 }
 
-// TODO: implementar habilidade da Hídra
 export class Hidra extends Chefe {
     constructor() {
         super('Hídra', { 3: 8, 4: 10, 5: 13 }, 2, 'hidra')
     }
 
     atacar(jog) {
-        if (jog.ultima.map(j => this.dictCartas[j]).includes(this.valCartas[0])) {
+        if (jog.total(this.dictCartas) == this.valCartas[0]) {
             jog.vida -= this.dano
             return true
         }

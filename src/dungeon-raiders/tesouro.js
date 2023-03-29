@@ -9,8 +9,9 @@ export class Tesouro {
 
     resolver(game) {
         const { jogs } = game
+        const dictCartas = { ...DICT_CARTAS, chave: 5 }
 
-        let valCartas = jogs.map(j => DICT_CARTAS[j.ultima[0]])
+        let valCartas = jogs.map(j => dictCartas[j.ultima[0]]).filter(i => i > 0)
         let max = -1
 
         for (const bau of this.baus) {

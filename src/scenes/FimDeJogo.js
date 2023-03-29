@@ -55,21 +55,20 @@ export default class FimDeJogo extends Phaser.Scene {
                 vivos.setText(`Jogador ${this.jogs[vencedor].nome} vence a partida`)
             }
         } else {
-            let vida = new Set(this.jogs.map(jog => jog.vida))
-            let vidaMin = Math.min(...vida)
-            let moeda = new Set(this.jogs.filter(jog => jog.vida > vidaMin).map(jog => jog.moedas))
-            let moedaMax = Math.max(...moeda)
+            const vida = new Set(this.jogs.map(jog => jog.vida))
+            const vidaMin = vida.size > 1 ? Math.min(...vida) : 0
+            const moeda = new Set(this.jogs.filter(jog => jog.vida > vidaMin).map(jog => jog.moedas))
+            const moedaMax = Math.max(...moeda)
 
             if (vida.size == 1 && moeda.size == 1) {
                 vivos.setText('Todos vencem')
             } else {
-                const es = ["", "es"]
                 const m = ["", "m"]
 
                 if (vida.size > 1) {
                     let nomes = this.jogs.filter(j => j.vida == vidaMin).map(j => j.nome)
                     let n = Number(nomes.length > 1)
-                    mortos.setText(`Jogador${es[n]} ${nomes.join(', ')} morre${m[n]}`)
+                    mortos.setText(`${nomes.join(', ')} morre${m[n]}`)
                 } else {
                     mortos.setText('Ninguém morre')
                 }
@@ -77,7 +76,7 @@ export default class FimDeJogo extends Phaser.Scene {
                 if (moeda.size > 1) {
                     let nomes = this.jogs.filter(j => j.vida > vidaMin && j.moedas == moedaMax).map(j => j.nome)
                     let n = Number(nomes.length > 1)
-                    vivos.setText(`Jogador${es[n]} ${nomes.join(', ')} vence${m[n]} a partida`)
+                    vivos.setText(`${nomes.join(', ')} vence${m[n]} a partida`)
                 } else {
                     vivos.setText('Empate')
                 }

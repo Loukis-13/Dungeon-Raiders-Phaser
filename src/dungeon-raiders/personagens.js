@@ -44,7 +44,10 @@ export class Personagem {
                 ((carta == "bola_de_cristal") && (classeSala == "Necromante"))
             ))
 
-            if (cartas.length == 0) {
+            if (
+                (cartas.length == 0) ||
+                (index > 0 && cartas.length < Math.floor(Math.random() * cartas.length + 2))
+            ) {
                 this.ultima.push("0");
                 continue
             }
@@ -58,5 +61,9 @@ export class Personagem {
     redefinir() {
         this.cartas = this.cartas.filter(c => !"12345".includes(c))
         this.cartas = [..."12345", ...this.cartas]
+    }
+
+    total(dictCartas) {
+        return this.ultima.map(j => dictCartas[j]).reduce((acc, x) => acc + x, 0);
     }
 }

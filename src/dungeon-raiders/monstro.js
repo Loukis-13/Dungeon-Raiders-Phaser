@@ -18,7 +18,7 @@ export class Monstro {
 
         // dois jogadores
         if (jogs.length == 2) {
-            const [j1, j2] = jogs.map(j => j.ultima.map(i => this.dictCartas[i]).reduce((acc, x) => acc + x))
+            const [j1, j2] = jogs.map(j => j.ultima.map(i => this.dictCartas[i]).reduce((acc, x) => acc + x, 0))
 
             if (j1 == j2) {
                 resultado = '? ? ?'
@@ -29,8 +29,7 @@ export class Monstro {
             }
         } else {
             this.valCartas = jogs
-                .flatMap(j => j.ultima.map(i => this.dictCartas[i]))
-                .filter(i => i)
+                .map(j => j.ultima.map(i => this.dictCartas[i]).reduce((acc, x) => acc + x, 0))
                 .sort((a, b) => a - b);
             const danoTotal = this.valCartas.reduce((acc, x) => acc + x)
             resultado = String(danoTotal)
@@ -51,7 +50,7 @@ export class Monstro {
     }
 
     atacar(jog) {
-        if (jog.ultima.map(j => this.dictCartas[j]).includes(this.valCartas[0])) {
+        if (jog.total(this.dictCartas) == this.valCartas[0]) {
             jog.vida -= this.dano
             return true
         }
